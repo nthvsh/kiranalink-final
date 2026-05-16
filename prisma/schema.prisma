@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id               String   @id @default(cuid())
+  shopName         String
+  ownerName        String
+  mobile           String   @unique
+  whatsapp         String
+  email            String?
+  address          String
+  regNumber        String?
+  bannerUrl        String?
+  openTime         String
+  closeTime        String
+  paymentMethod    String
+  slug             String   @unique
+  isActive         Boolean  @default(true)
+  trialEndsAt      DateTime
+  subscriptionEndsAt DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  orders       Order[]
+  payments     Payment[]
+  otpSessions  OtpSession[]
+
+  @@index([mobile, address, shopName])
+}
+
+model OtpSession {
+  id        String   @id @default(cuid())
+  mobile    String
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  shopId    String?
+  shop      Shop?    @relation(fields: [shopId], references: [id])
+
+  @@index([mobile])
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  shopId         String
+  shop           Shop     @relation(fields: [shopId], references: [id])
+  customerName   String
+  customerMobile String
+  customerAddress String
+  items          Json
+  homeDelivery   Boolean  @default(false)
+  deliveryCharge Int      @default(0)
+  paymentMethod  String
+  totalAmount    Int?
+  status         String   @default("new")
+  createdAt      DateTime @default(now())
+
+  @@index([shopId, createdAt])
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  shopId            String
+  shop              Shop     @relation(fields: [shopId], references: [id])
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  amount            Int
+  status            String   @default("pending")
+  createdAt         DateTime @default(now())
+
+  @@index([shopId])
+}
+
+model Category {
+  id        String @id @default(cuid())
+  name      String
+  nameHindi String
+  icon      String
+  sortOrder Int    @default(0)
+  isActive  Boolean @default(true)
+  items     Item[]
+}
+
+model Item {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  name       String
+  nameHindi  String
+  type       String   // "packet_only" or "packet_and_loose"
+  brands     Json     // array of brand names
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
