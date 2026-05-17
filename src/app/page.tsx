@@ -19,7 +19,7 @@ interface ShopFormData {
   paymentMethod: string
 }
 
-const inp = "w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors placeholder:text-[#AAAAAA]"
+const inp = "w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors"
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -147,8 +147,7 @@ export default function HomePage() {
       <div className="text-center mb-7">
         <div className="w-16 h-16 bg-[#2D6A4F] rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">🛒</div>
         <h1 className="text-2xl font-bold text-[#1B3A2F] tracking-tight">
-          KiranaLink{' '}
-          <span className="text-sm font-semibold bg-[#EAF5EE] text-[#1B6B3A] px-3 py-1 rounded-full">✓ 30 din FREE</span>
+          KiranaLink
         </h1>
         <p className="text-sm text-[#5A7A6A] mt-1">Apni kirana shop ko digital banao — aaj hi</p>
       </div>
@@ -177,31 +176,31 @@ export default function HomePage() {
           <div className="space-y-4">
             <SectionTitle>🏪 Shop Ki Jankari</SectionTitle>
             <Field label="Shop Ka Naam" required>
-              <input className={inp} placeholder="Jaise: Banti Kirana Shop" value={form.shopName} onChange={e => updateForm('shopName', e.target.value)} />
+              <input className={inp} placeholder="" value={form.shopName} onChange={e => updateForm('shopName', e.target.value)} />
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Owner Ka Naam" required>
-                <input className={inp} placeholder="Aapka naam" value={form.ownerName} onChange={e => updateForm('ownerName', e.target.value)} />
+                <input className={inp} placeholder="" value={form.ownerName} onChange={e => updateForm('ownerName', e.target.value)} />
               </Field>
               <Field label="Reg. Number">
-                <input className={inp} placeholder="Optional" value={form.regNumber} onChange={e => updateForm('regNumber', e.target.value)} />
+                <input className={inp} placeholder="" value={form.regNumber} onChange={e => updateForm('regNumber', e.target.value)} />
               </Field>
             </div>
             <Field label="Shop Ka Pata" required>
-              <textarea className={`${inp} h-16 resize-none`} placeholder="Poora address likhein..." value={form.address} onChange={e => updateForm('address', e.target.value)} />
+              <textarea className={`${inp} h-16 resize-none`} placeholder="" value={form.address} onChange={e => updateForm('address', e.target.value)} />
             </Field>
 
             <SectionTitle>📞 Contact Details</SectionTitle>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Mobile Number" required>
-                <input className={inp} type="tel" maxLength={10} placeholder="98765XXXXX" value={form.mobile} onChange={e => updateForm('mobile', e.target.value)} />
+                <input className={inp} type="tel" maxLength={10} placeholder="" value={form.mobile} onChange={e => updateForm('mobile', e.target.value)} />
               </Field>
               <Field label="WhatsApp Number" required>
-                <input className={inp} type="tel" maxLength={10} placeholder="98765XXXXX" value={form.whatsapp} onChange={e => updateForm('whatsapp', e.target.value)} />
+                <input className={inp} type="tel" maxLength={10} placeholder="" value={form.whatsapp} onChange={e => updateForm('whatsapp', e.target.value)} />
               </Field>
             </div>
             <Field label="Email ID">
-              <input className={inp} type="email" placeholder="aapkaemail@gmail.com" value={form.email} onChange={e => updateForm('email', e.target.value)} />
+              <input className={inp} type="email" placeholder="" value={form.email} onChange={e => updateForm('email', e.target.value)} />
             </Field>
 
             <SectionTitle>⏰ Timing & Payment</SectionTitle>
@@ -249,7 +248,7 @@ export default function HomePage() {
               <p className="text-sm text-[#5A7A6A] mt-1">Mobile number daalo — OTP se login karein</p>
             </div>
             <Field label="Mobile Number" required>
-              <input className={inp} type="tel" maxLength={10} placeholder="98765XXXXX" value={loginMobile} onChange={e => setLoginMobile(e.target.value)} />
+              <input className={inp} type="tel" maxLength={10} placeholder="" value={loginMobile} onChange={e => setLoginMobile(e.target.value)} />
             </Field>
             <button onClick={handleLoginSubmit} disabled={loading}
               className="w-full py-3.5 bg-[#2D6A4F] hover:bg-[#245A42] text-white rounded-xl font-semibold text-base transition-all disabled:opacity-60">
