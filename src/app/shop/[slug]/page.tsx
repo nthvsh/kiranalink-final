@@ -464,8 +464,8 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
                   Aapka Naam <span className="text-[#D85A30]">*</span>
                 </label>
                 <input
-                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors placeholder:text-[#AAAAAA]"
-                  placeholder="Ramesh Kumar"
+                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors"
+                  placeholder=""
                   value={customerName}
                   onChange={e => setCustomerName(e.target.value)}
                 />
@@ -475,8 +475,8 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
                   Mobile Number <span className="text-[#D85A30]">*</span>
                 </label>
                 <input
-                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors placeholder:text-[#AAAAAA]"
-                  type="tel" maxLength={10} placeholder="98765XXXXX"
+                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors"
+                  type="tel" maxLength={10} placeholder=""
                   value={customerMobile}
                   onChange={e => setCustomerMobile(e.target.value)}
                 />
@@ -486,8 +486,8 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
                   Ghar Ka Pata <span className="text-[#D85A30]">*</span>
                 </label>
                 <textarea
-                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors placeholder:text-[#AAAAAA] h-16 resize-none"
-                  placeholder="Gali no, mohalla, landmark..."
+                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors h-16 resize-none"
+                  placeholder=""
                   value={customerAddress}
                   onChange={e => setCustomerAddress(e.target.value)}
                 />
