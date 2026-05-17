@@ -149,7 +149,7 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold text-[#1B3A2F] tracking-tight">
           KiranaLink
         </h1>
-        <p className="text-sm text-[#5A7A6A] mt-1">Apni kirana shop ko digital banao — aaj hi</p>
+        <p className="text-sm text-[#5A7A6A] mt-1">आपकी दुकान, आपका भरोसा — गाँव हो या शहर — अब हर किराना दुकान बनेगी डिजिटल!</p>
       </div>
 
       <div className="bg-white rounded-2xl p-7 w-full max-w-md border border-[#E0DDD6] shadow-sm">
