@@ -16,12 +16,11 @@ export async function POST(req: NextRequest) {
       bannerUrl,
       openTime,
       closeTime,
-      paymentMethod,
       verifiedOtp,
     } = body
 
-    // Validation
-    if (!shopName || !ownerName || !mobile || !whatsapp || !address || !openTime || !closeTime || !paymentMethod) {
+    // Validation — paymentMethod removed
+    if (!shopName || !ownerName || !mobile || !whatsapp || !address || !openTime || !closeTime) {
       return NextResponse.json({ error: 'Sabhi zaroori fields bharein' }, { status: 400 })
     }
 
@@ -34,7 +33,6 @@ export async function POST(req: NextRequest) {
       where: { mobile, verified: true, expiresAt: { gt: new Date(Date.now() - 15 * 60 * 1000) } },
       orderBy: { createdAt: 'desc' },
     })
-
     if (!otpSession) {
       return NextResponse.json({ error: 'OTP verify nahi hua. Dobara koshish karein.' }, { status: 400 })
     }
@@ -73,7 +71,7 @@ export async function POST(req: NextRequest) {
         bannerUrl: bannerUrl || null,
         openTime,
         closeTime,
-        paymentMethod,
+        paymentMethod: 'both', // Default value — form se hata diya isliye
         slug,
         trialEndsAt: getTrialEndDate(),
         isActive: true,
