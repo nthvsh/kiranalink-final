@@ -109,23 +109,37 @@ export default function HomePage() {
     const otpValue = otp.join('')
     if (otpValue.length < 6) { setError('Poora 6-digit OTP daalo.'); return }
     setError(''); setLoading(true)
+
     try {
       if (tab === 'signup') {
-        const res = await fetch('/api/shop/register', {
+        // STEP 1: Pehle OTP verify karo
+        const verifyRes = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: form.mobile, otp: otpValue, purpose: 'signup' }),
+        })
+        const verifyData = await verifyRes.json()
+        if (!verifyRes.ok) { setError(verifyData.error); return }
+
+        // STEP 2: OTP verified — ab shop register karo
+        const registerRes = await fetch('/api/shop/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...form, verifiedOtp: otpValue }),
         })
-        const data = await res.json()
-        if (!res.ok) { setError(data.error); return }
-        setShopLink(`${window.location.origin}/shop/${data.shop.slug}`)
-        setSuccessShopName(data.shop.shopName)
+        const registerData = await registerRes.json()
+        if (!registerRes.ok) { setError(registerData.error); return }
+
+        setShopLink(`${window.location.origin}/shop/${registerData.shop.slug}`)
+        setSuccessShopName(registerData.shop.shopName)
         setStep('success')
+
       } else {
+        // Login
         const res = await fetch('/api/auth/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobile: loginMobile, otp: otpValue }),
+          body: JSON.stringify({ mobile: loginMobile, otp: otpValue, purpose: 'login' }),
         })
         const data = await res.json()
         if (!res.ok) { setError(data.error); return }
@@ -142,12 +156,9 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#F7F4EF] flex flex-col items-center justify-start py-8 px-4">
-      {/* Brand */}
       <div className="text-center mb-7">
         <div className="w-16 h-16 bg-[#2D6A4F] rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">🛒</div>
-        <h1 className="text-2xl font-bold text-[#1B3A2F] tracking-tight">
-          KiranaLink
-        </h1>
+        <h1 className="text-2xl font-bold text-[#1B3A2F] tracking-tight">KiranaLink</h1>
         <p className="text-sm text-[#5A7A6A] mt-1">आपकी दुकान, आपका भरोसा — गाँव हो या शहर — अब हर किराना दुकान बनेगी डिजिटल!</p>
       </div>
 
@@ -256,10 +267,14 @@ export default function HomePage() {
         {step === 'otp' && (
           <div className="text-center py-2">
             <div className="text-4xl mb-3">📱</div>
-            <h2 className="text-xl font-bold text-[#1B3A2F] mb-2">OTP Aaya Hoga!</h2>
-            <p className="text-sm text-[#5A7A6A] mb-6">
+            <h2 className="text-xl font-bold text-[#1B3A2F] mb-2">OTP Daalo!</h2>
+            <p className="text-sm text-[#5A7A6A] mb-2">
               Aapke number <strong className="text-[#1B3A2F]">{currentMobile}</strong> par<br />6-digit OTP bheja gaya hai
             </p>
+            {/* Test Mode Hint */}
+            <div className="bg-[#FFF8E1] border border-[#FFD54F] rounded-lg px-3 py-2 text-xs text-[#795548] mb-4">
+              🧪 Test Mode: OTP = <strong>1 2 3 4 5 6</strong>
+            </div>
             <div className="flex gap-2.5 justify-center mb-5">
               {otp.map((digit, i) => (
                 <input key={i} ref={el => { otpRefs.current[i] = el }} type="tel" maxLength={1} value={digit}
