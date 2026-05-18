@@ -16,7 +16,6 @@ interface ShopFormData {
   regNumber: string
   openTime: string
   closeTime: string
-  paymentMethod: string
 }
 
 const inp = "w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors"
@@ -57,7 +56,7 @@ export default function HomePage() {
   const [form, setForm] = useState<ShopFormData>({
     shopName: '', ownerName: '', mobile: '', whatsapp: '',
     email: '', address: '', regNumber: '',
-    openTime: '08:00', closeTime: '22:00', paymentMethod: '',
+    openTime: '08:00', closeTime: '22:00',
   })
 
   const updateForm = (field: keyof ShopFormData, value: string) =>
@@ -81,8 +80,8 @@ export default function HomePage() {
   }
 
   const handleSignupSubmit = () => {
-    const { shopName, ownerName, mobile, whatsapp, address, paymentMethod } = form
-    if (!shopName || !ownerName || !mobile || !whatsapp || !address || !paymentMethod) {
+    const { shopName, ownerName, mobile, whatsapp, address } = form
+    if (!shopName || !ownerName || !mobile || !whatsapp || !address) {
       setError('Kripya sabhi zaroori (*) fields bharein.'); return
     }
     if (!/^[6-9]\d{9}$/.test(mobile)) { setError('Sahi mobile number daalo (10 digits).'); return }
@@ -203,21 +202,13 @@ export default function HomePage() {
               <input className={inp} type="email" placeholder="" value={form.email} onChange={e => updateForm('email', e.target.value)} />
             </Field>
 
-            <SectionTitle>⏰ Timing & Payment</SectionTitle>
+            <SectionTitle>⏰ Shop Timing</SectionTitle>
             <Field label="Shop Timing" required>
               <div className="flex items-center gap-2">
                 <input type="time" className={`${inp} flex-1`} value={form.openTime} onChange={e => updateForm('openTime', e.target.value)} />
                 <span className="text-xs text-[#7A8C85]">se</span>
                 <input type="time" className={`${inp} flex-1`} value={form.closeTime} onChange={e => updateForm('closeTime', e.target.value)} />
               </div>
-            </Field>
-            <Field label="Payment Method" required>
-              <select className={inp} value={form.paymentMethod} onChange={e => updateForm('paymentMethod', e.target.value)}>
-                <option value="">— Chunein —</option>
-                <option value="cash">Sirf Cash</option>
-                <option value="upi">Sirf UPI</option>
-                <option value="both">Cash + UPI Dono</option>
-              </select>
             </Field>
 
             <SectionTitle>🖼️ Shop Ka Banner / Logo</SectionTitle>
