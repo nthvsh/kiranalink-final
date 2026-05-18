@@ -1,5 +1,3 @@
-// WhatsApp service - Twilio integration
-
 export interface OrderNotificationData {
   shopName: string
   customerName: string
@@ -24,57 +22,43 @@ export function formatOrderMessage(data: OrderNotificationData): string {
     ? '🛵 Home Delivery: Haan (+₹30)'
     : '🏪 Pickup: Haan (Shop se lenge)'
 
-  return `🛒 *Naya Order — ${data.shopName}*
-
-👤 Customer: ${data.customerName}
-📍 Address: ${data.customerAddress}
-📞 Mobile: ${data.customerMobile}
-
-📦 *Order List:*
-${itemsList}
-
-${deliveryLine}
-💳 Payment: ${data.paymentMethod}
-🕐 Order Time: ${data.orderTime}
-
-_KiranaLink se bheja gaya_`
+  return `🛒 *Naya Order — ${data.shopName}*\n\n👤 Customer: ${data.customerName}\n📍 Address: ${data.customerAddress}\n📞 Mobile: ${data.customerMobile}\n\n📦 *Order List:*\n${itemsList}\n\n${deliveryLine}\n💳 Payment: ${data.paymentMethod}\n🕐 Order Time: ${data.orderTime}\n\n_KiranaLink se bheja gaya_`
 }
 
 export async function sendWhatsAppOrder(
   shopWhatsapp: string,
   message: string
 ): Promise<boolean> {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken = process.env.TWILIO_AUTH_TOKEN
-  const from = process.env.TWILIO_WHATSAPP_FROM
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
 
-  if (!accountSid || !authToken) {
+  if (!accessToken || !phoneNumberId) {
     console.log('WhatsApp DEV MODE — message:')
     console.log(message)
     return true
   }
 
   try {
-    const credentials = Buffer.from(`${accountSid}:${authToken}`).toString('base64')
     const response = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`,
       {
         method: 'POST',
         headers: {
-          Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          From: from || 'whatsapp:+14155238886',
-          To: `whatsapp:+91${shopWhatsapp}`,
-          Body: message,
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: `91${shopWhatsapp}`,
+          type: 'text',
+          text: { body: message },
         }),
       }
     )
 
     const data = await response.json()
-    console.log('Twilio response:', data.sid)
-    return !!data.sid
+    console.log('Meta WhatsApp response:', JSON.stringify(data))
+    return !!data.messages?.[0]?.id
   } catch (error) {
     console.error('WhatsApp send error:', error)
     return false
@@ -86,17 +70,6 @@ export async function sendSubscriptionReminder(
   shopName: string,
   daysLeft: number
 ): Promise<boolean> {
-  const message = `⚠️ *${shopName} — Alert!*
-
-Aapki shop ki link *${daysLeft} din mein expire* hone wali hai.
-
-❌ Link expire hone par customers order nahi de payenge.
-
-✅ Abhi ₹149 recharge karein — link turant active rahegi.
-
-👉 Recharge karein: ${process.env.NEXT_PUBLIC_APP_URL}/recharge
-
-_KiranaLink — Aapki Digital Kirana_`
-
+  const message = `⚠️ *${shopName} — Alert!*\n\nAapki shop ki link *${daysLeft} din mein expire* hone wali hai.\n\n❌ Link expire hone par customers order nahi de payenge.\n\n✅ Abhi ₹149 recharge karein — link turant active rahegi.\n\n👉 Recharge karein: ${process.env.NEXT_PUBLIC_APP_URL}/recharge\n\n_KiranaLink — Aapki Digital Kirana_`
   return sendWhatsAppOrder(shopWhatsapp, message)
 }
