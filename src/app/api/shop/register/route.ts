@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkDuplicateShop, getUniqueSlug, getTrialEndDate, createSessionToken, validateMobile } from '@/lib/utils'
 
+// Helper: Normalize mobile number — sirf last 10 digits
+function normalizeMobile(num: string): string {
+  if (!num) return ''
+  return num.replace(/\D/g, '').slice(-10)
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -16,21 +22,30 @@ export async function POST(req: NextRequest) {
       bannerUrl,
       openTime,
       closeTime,
-      verifiedOtp,
     } = body
 
-    // Validation — paymentMethod removed
+    // Validation
     if (!shopName || !ownerName || !mobile || !whatsapp || !address || !openTime || !closeTime) {
       return NextResponse.json({ error: 'Sabhi zaroori fields bharein' }, { status: 400 })
     }
 
+    // Validate mobile format
     if (!validateMobile(mobile) || !validateMobile(whatsapp)) {
       return NextResponse.json({ error: 'Sahi mobile number daalo' }, { status: 400 })
     }
 
+    // Normalize numbers — sirf last 10 digits store karo
+    const normalizedMobile = normalizeMobile(mobile)
+    const normalizedWhatsapp = normalizeMobile(whatsapp)
+
+    // If whatsapp is same as mobile, still fine
+    if (!normalizedMobile || !normalizedWhatsapp) {
+      return NextResponse.json({ error: 'Invalid mobile number format' }, { status: 400 })
+    }
+
     // Check OTP was verified
     const otpSession = await prisma.otpSession.findFirst({
-      where: { mobile, verified: true, expiresAt: { gt: new Date(Date.now() - 15 * 60 * 1000) } },
+      where: { mobile: normalizedMobile, verified: true, expiresAt: { gt: new Date(Date.now() - 15 * 60 * 1000) } },
       orderBy: { createdAt: 'desc' },
     })
     if (!otpSession) {
@@ -38,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Anti-duplicate check
-    const isDuplicate = await checkDuplicateShop(shopName, address, mobile)
+    const isDuplicate = await checkDuplicateShop(shopName, address, normalizedMobile)
     if (isDuplicate) {
       return NextResponse.json(
         { error: 'Is shop ka account pehle se exist karta hai. Login karein.' },
@@ -47,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check mobile already registered
-    const existingMobile = await prisma.shop.findUnique({ where: { mobile } })
+    const existingMobile = await prisma.shop.findUnique({ where: { mobile: normalizedMobile } })
     if (existingMobile) {
       return NextResponse.json(
         { error: 'Ye mobile number pehle se registered hai. Login karein.' },
@@ -63,23 +78,23 @@ export async function POST(req: NextRequest) {
       data: {
         shopName: shopName.trim(),
         ownerName: ownerName.trim(),
-        mobile,
-        whatsapp,
+        mobile: normalizedMobile,
+        whatsapp: normalizedWhatsapp,
         email: email || null,
         address: address.trim(),
         regNumber: regNumber || null,
         bannerUrl: bannerUrl || null,
         openTime,
         closeTime,
-        paymentMethod: 'both', // Default value — form se hata diya isliye
+        paymentMethod: 'both',
         slug,
         trialEndsAt: getTrialEndDate(),
         isActive: true,
       },
     })
 
-    // Create session
-    const token = await createSessionToken(shop.id, mobile)
+    // Create session token
+    const token = await createSessionToken(shop.id, normalizedMobile)
 
     const response = NextResponse.json({
       success: true,
