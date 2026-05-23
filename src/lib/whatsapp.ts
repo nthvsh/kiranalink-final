@@ -32,9 +32,16 @@ export async function sendWhatsAppOrder(
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
 
+  // Normalize number — sirf last 10 digits
+  const normalized = shopWhatsapp.replace(/\D/g, '').slice(-10)
+  const toNumber = `91${normalized}`
+
+  console.log('📱 Original:', shopWhatsapp)
+  console.log('📱 Normalized to:', toNumber)
+
   if (!accessToken || !phoneNumberId) {
-    console.log('WhatsApp DEV MODE — message:')
-    console.log(message)
+    console.log('⚠️ WhatsApp DEV MODE — missing credentials')
+    console.log('Message would be sent:', message)
     return true
   }
 
@@ -49,7 +56,7 @@ export async function sendWhatsAppOrder(
         },
         body: JSON.stringify({
           messaging_product: 'whatsapp',
-          to: `91${shopWhatsapp}`,
+          to: toNumber,
           type: 'text',
           text: { body: message },
         }),
@@ -57,10 +64,16 @@ export async function sendWhatsAppOrder(
     )
 
     const data = await response.json()
-    console.log('Meta WhatsApp response:', JSON.stringify(data))
+    console.log('📨 Meta Response:', JSON.stringify(data))
+
+    if (data.error) {
+      console.error('❌ Meta API Error:', data.error)
+      return false
+    }
+
     return !!data.messages?.[0]?.id
   } catch (error) {
-    console.error('WhatsApp send error:', error)
+    console.error('❌ WhatsApp send error:', error)
     return false
   }
 }
@@ -70,6 +83,8 @@ export async function sendSubscriptionReminder(
   shopName: string,
   daysLeft: number
 ): Promise<boolean> {
-  const message = `⚠️ *${shopName} — Alert!*\n\nAapki shop ki link *${daysLeft} din mein expire* hone wali hai.\n\n❌ Link expire hone par customers order nahi de payenge.\n\n✅ Abhi ₹149 recharge karein — link turant active rahegi.\n\n👉 Recharge karein: ${process.env.NEXT_PUBLIC_APP_URL}/recharge\n\n_KiranaLink — Aapki Digital Kirana_`
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kiranalink-final.vercel.app'
+  const message = `⚠️ *${shopName} — Alert!*\n\nAapki shop ki link *${daysLeft} din mein expire* hone wali hai.\n\n❌ Link expire hone par customers order nahi de payenge.\n\n✅ Abhi ₹149 recharge karein — link turant active rahegi.\n\n👉 Recharge karein: ${appUrl}/recharge\n\n_KiranaLink — Aapki Digital Kirana_`
+  
   return sendWhatsAppOrder(shopWhatsapp, message)
 }
