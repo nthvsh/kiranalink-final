@@ -3,6 +3,32 @@ import { prisma } from '@/lib/prisma'
 import { isShopActive, formatOrderTime } from '@/lib/utils'
 import { sendWhatsAppOrder, formatOrderMessage } from '@/lib/whatsapp'
 
+// Customer confirmation message
+function formatCustomerConfirmationMessage(
+  shopName: string,
+  customerName: string,
+  itemsCount: number,
+  homeDelivery: boolean,
+  paymentMethod: string
+): string {
+  const deliveryText = homeDelivery
+    ? '🛵 आपका ऑर्डर होम डिलीवरी के लिए कन्फर्म हो गया है। ₹30 डिलीवरी चार्ज जुड़ेगा।'
+    : '🏪 आपका ऑर्डर कन्फर्म हो गया है। कृपया शॉप से खुद ले जाएं।'
+
+  return `✅ *ऑर्डर कन्फर्म — ${shopName}*
+
+नमस्ते ${customerName}!
+
+${deliveryText}
+
+📦 कुल आइटम: ${itemsCount}
+💳 पेमेंट: ${paymentMethod}
+
+शॉपकीपर जल्द ही आपसे संपर्क करेगा।
+
+_KiranaLink — धन्यवाद!_`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -57,9 +83,11 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Send WhatsApp to shopkeeper — turant!
     const orderTime = formatOrderTime(now)
+    let shopkeeperWhatsappSent = false
+    let customerWhatsappSent = false
 
+    // 1. Send WhatsApp to shopkeeper
     const waMessage = formatOrderMessage({
       shopName: shop.shopName,
       customerName,
@@ -71,18 +99,45 @@ export async function POST(req: NextRequest) {
       orderTime,
     })
 
-    // Send async — don't wait (so customer doesn't wait)
-    sendWhatsAppOrder(shop.whatsapp, waMessage).catch(err =>
-      console.error('WA send failed:', err)
+    shopkeeperWhatsappSent = await sendWhatsAppOrder(shop.whatsapp, waMessage).catch(err => {
+      console.error('Shopkeeper WA failed:', err)
+      return false
+    })
+
+    console.log(`📤 Shopkeeper WA sent: ${shopkeeperWhatsappSent}`)
+
+    // 2. Send WhatsApp confirmation to customer
+    const customerMessage = formatCustomerConfirmationMessage(
+      shop.shopName,
+      customerName,
+      items.length,
+      homeDelivery,
+      paymentMethod
     )
+
+    // Customer mobile number normalize
+    const customerMobileNormalized = customerMobile.replace(/\D/g, '').slice(-10)
+    const customerWhatsappNumber = `91${customerMobileNormalized}`
+
+    customerWhatsappSent = await sendWhatsAppOrder(customerWhatsappNumber, customerMessage).catch(err => {
+      console.error('Customer WA failed:', err)
+      return false
+    })
+
+    console.log(`📤 Customer WA sent: ${customerWhatsappSent}`)
 
     return NextResponse.json({
       success: true,
       orderId: order.id,
-      message: 'Order confirm ho gaya! Shopkeeper ko WhatsApp par bhej diya gaya.',
+      shopkeeperWhatsappSent,
+      customerWhatsappSent,
+      message: 'Order confirm ho gaya!',
     })
   } catch (error) {
     console.error('Order create error:', error)
-    return NextResponse.json({ error: 'Order nahi ho paya. Dobara koshish karein.' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Order nahi ho paya. Dobara koshish karein.' },
+      { status: 500 }
+    )
   }
 }
