@@ -1,13 +1,31 @@
 import { prisma } from './prisma'
 
-// Generate URL-friendly slug from shop name
-export function generateSlug(shopName: string): string {
-  return shopName
+// Normalize mobile number — sirf last 10 digits
+export function normalizeMobile(mobile: string): string {
+  if (!mobile) return ''
+  const cleaned = mobile.replace(/\D/g, '')
+  if (cleaned.length < 10) return ''
+  return cleaned.slice(-10)
+}
+
+// Normalize string for slug (Unicode support for Indian languages)
+export function normalizeForSlug(str: string): string {
+  return str
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')  // \p{L} for letters, \p{N} for numbers (Unicode)
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+// Generate URL-friendly slug from shop name
+export function generateSlug(shopName: string): string {
+  let slug = normalizeForSlug(shopName)
+  // Fallback if slug becomes empty
+  if (!slug) {
+    slug = 'shop-' + Date.now()
+  }
+  return slug
 }
 
 // Make slug unique if duplicate
@@ -32,12 +50,13 @@ export async function checkDuplicateShop(
   address: string,
   mobile: string
 ): Promise<boolean> {
+  const normalizedMobile = normalizeMobile(mobile)
   const existing = await prisma.shop.findFirst({
     where: {
       AND: [
-        { shopName: { equals: shopName, mode: 'insensitive' } },
-        { address: { contains: address.substring(0, 20), mode: 'insensitive' } },
-        { mobile },
+        { shopName: { equals: shopName.trim(), mode: 'insensitive' } },
+        { address: { contains: address.substring(0, 30), mode: 'insensitive' } },
+        { mobile: normalizedMobile },
       ],
     },
   })
@@ -64,22 +83,50 @@ export function formatPayment(method: string): string {
 
 // Calculate trial end date (30 days from now)
 export function getTrialEndDate(): Date {
+  const trialDays = Number(process.env.TRIAL_DAYS) || 30
   const date = new Date()
-  date.setDate(date.getDate() + (parseInt(process.env.TRIAL_DAYS || '30')))
+  date.setDate(date.getDate() + trialDays)
   return date
 }
 
-// Check if shop subscription is active
+// Check if shop subscription is active (with 48 hours grace period)
 export function isShopActive(shop: {
   trialEndsAt: Date
   subscriptionEndsAt: Date | null
   isActive: boolean
 }): boolean {
   if (!shop.isActive) return false
+  
   const now = new Date()
-  if (now <= shop.trialEndsAt) return true
-  if (shop.subscriptionEndsAt && now <= shop.subscriptionEndsAt) return true
+  const gracePeriodMs = 48 * 60 * 60 * 1000 // 48 hours grace
+  
+  // Trial period + grace
+  if (now.getTime() <= shop.trialEndsAt.getTime() + gracePeriodMs) return true
+  
+  // Subscription period + grace
+  if (shop.subscriptionEndsAt && now.getTime() <= shop.subscriptionEndsAt.getTime() + gracePeriodMs) return true
+  
   return false
+}
+
+// Get days remaining until expiry (for reminders)
+export function getDaysRemaining(shop: {
+  trialEndsAt: Date
+  subscriptionEndsAt: Date | null
+}): number {
+  const now = new Date()
+  let expiryDate: Date | null = null
+  
+  if (now <= shop.trialEndsAt) {
+    expiryDate = shop.trialEndsAt
+  } else if (shop.subscriptionEndsAt && now <= shop.subscriptionEndsAt) {
+    expiryDate = shop.subscriptionEndsAt
+  }
+  
+  if (!expiryDate) return 0
+  
+  const diffMs = expiryDate.getTime() - now.getTime()
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 }
 
 // Format order time
@@ -92,30 +139,37 @@ export function formatOrderTime(date: Date): string {
   })
 }
 
-// Validate Indian mobile number
+// Validate Indian mobile number (10 digits, starts with 6-9)
 export function validateMobile(mobile: string): boolean {
-  return /^[6-9]\d{9}$/.test(mobile)
+  const normalized = normalizeMobile(mobile)
+  return /^[6-9]\d{9}$/.test(normalized)
 }
 
-// Session token for shopkeeper (simple JWT-like)
+// Session token for shopkeeper
 import { SignJWT, jwtVerify } from 'jose'
 
-const SECRET = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET || 'fallback-secret-change-this'
-)
+function getSecret(): Uint8Array {
+  const secret = process.env.NEXTAUTH_SECRET
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('NEXTAUTH_SECRET is required in production')
+  }
+  const secretKey = secret || 'fallback-secret-change-this-for-development-only'
+  return new TextEncoder().encode(secretKey)
+}
 
 export async function createSessionToken(shopId: string, mobile: string): Promise<string> {
-  return await new SignJWT({ shopId, mobile })
+  const normalizedMobile = normalizeMobile(mobile)
+  return await new SignJWT({ shopId, mobile: normalizedMobile })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('30d')
-    .sign(SECRET)
+    .sign(getSecret())
 }
 
 export async function verifySessionToken(
   token: string
 ): Promise<{ shopId: string; mobile: string } | null> {
   try {
-    const { payload } = await jwtVerify(token, SECRET)
+    const { payload } = await jwtVerify(token, getSecret())
     return payload as { shopId: string; mobile: string }
   } catch {
     return null
