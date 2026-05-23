@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createSessionToken } from '@/lib/utils'
+import { createSessionToken, normalizeMobile, validateMobile } from '@/lib/utils'
 
 const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === 'true'
 
@@ -12,11 +12,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Mobile aur OTP dono zaroori hain' }, { status: 400 })
     }
 
+    // Normalize mobile number
+    const normalizedMobile = normalizeMobile(mobile)
+    
+    if (!normalizedMobile || !validateMobile(normalizedMobile)) {
+      return NextResponse.json({ error: 'Invalid mobile number format' }, { status: 400 })
+    }
+
     // TEST MODE: 123456 hamesha valid
     if (TEST_MODE && otp === '123456') {
       // OTP session ko verified mark karo
       const session = await prisma.otpSession.findFirst({
-        where: { mobile },
+        where: { mobile: normalizedMobile },
         orderBy: { createdAt: 'desc' },
       })
       if (session) {
@@ -28,11 +35,13 @@ export async function POST(req: NextRequest) {
 
       // Agar login purpose hai to shop dhundho
       if (purpose === 'login') {
-        const shop = await prisma.shop.findUnique({ where: { mobile } })
+        const shop = await prisma.shop.findUnique({ 
+          where: { mobile: normalizedMobile } 
+        })
         if (!shop) {
           return NextResponse.json({ error: 'Shop nahi mili. Signup karein.' }, { status: 404 })
         }
-        const token = await createSessionToken(shop.id, mobile)
+        const token = await createSessionToken(shop.id, normalizedMobile)
         const response = NextResponse.json({
           success: true,
           shop: {
@@ -60,7 +69,7 @@ export async function POST(req: NextRequest) {
     // NORMAL MODE: Database se OTP check karo
     const otpSession = await prisma.otpSession.findFirst({
       where: {
-        mobile,
+        mobile: normalizedMobile,
         otp,
         verified: false,
         expiresAt: { gt: new Date() },
@@ -82,11 +91,13 @@ export async function POST(req: NextRequest) {
 
     // Login ke liye shop dhundho aur session banao
     if (purpose === 'login') {
-      const shop = await prisma.shop.findUnique({ where: { mobile } })
+      const shop = await prisma.shop.findUnique({ 
+        where: { mobile: normalizedMobile } 
+      })
       if (!shop) {
         return NextResponse.json({ error: 'Shop nahi mili. Signup karein.' }, { status: 404 })
       }
-      const token = await createSessionToken(shop.id, mobile)
+      const token = await createSessionToken(shop.id, normalizedMobile)
       const response = NextResponse.json({
         success: true,
         shop: {
