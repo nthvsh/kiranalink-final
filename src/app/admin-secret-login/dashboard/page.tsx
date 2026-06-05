@@ -91,7 +91,6 @@ export default function AdminDashboard() {
     load('shops')
   }
 
-  // ⬇️ NAYA FUNCTION — Shop Delete
   const deleteShop = async (shopId: string, shopName: string) => {
     if (!confirm(`⚠️ "${shopName}" delete karein? Ye action undo nahi ho sakta!`)) return
     await fetch('/api/admin/delete-shop', { 
@@ -267,7 +266,6 @@ export default function AdminDashboard() {
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${shop.isActive ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-green-900/30 text-green-400 hover:bg-green-900/50'}`}>
                               {shop.isActive ? 'Band Karo' : 'Active Karo'}
                             </button>
-                            {/* ⬇️ NAYA DELETE BUTTON */}
                             <button
                               onClick={() => deleteShop(shop.id, shop.shopName)}
                               className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-red-900/20 text-red-400 hover:bg-red-900/40 transition-colors">
