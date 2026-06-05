@@ -3,14 +3,18 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
-    const { mobile } = await req.json()
+    const { mobile, shopId } = await req.json()
     
-    await prisma.shop.deleteMany({
-      where: { mobile }
-    })
+    if (shopId) {
+      await prisma.shop.delete({ where: { id: shopId } })
+    } else if (mobile) {
+      await prisma.shop.deleteMany({ where: { mobile } })
+    } else {
+      return NextResponse.json({ error: 'mobile ya shopId chahiye' }, { status: 400 })
+    }
     
-    return NextResponse.json({ success: true, message: 'Shop deleted' })
+    return NextResponse.json({ success: true, message: 'Shop delete ho gayi' })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Delete failed' }, { status: 500 })
   }
 }

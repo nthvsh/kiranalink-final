@@ -42,11 +42,11 @@ const fmt = (d: string) => new Date(d).toLocaleDateString('hi-IN', { day: '2-dig
 // ─── Main Component ───────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter()
-  const [section, setSection] = useState<Section>('dashboard')
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [shops, setShops] = useState<Shop[]>([])
+  const [section, setSection] = useState<<Section>('dashboard')
+  const [stats, setStats] = useState<<Stats | null>(null)
+  const [shops, setShops] = useState<<Shop[]>([])
   const [orders, setOrders] = useState<Order[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<<Category[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(false)
   const [shopSearch, setShopSearch] = useState('')
@@ -88,6 +88,18 @@ export default function AdminDashboard() {
   const toggleShop = async (shopId: string, isActive: boolean) => {
     await fetch('/api/admin/shops', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shopId, isActive }) })
     flash(isActive ? '✅ Shop active kar di' : '❌ Shop band kar di')
+    load('shops')
+  }
+
+  // ⬇️ NAYA FUNCTION — Shop Delete
+  const deleteShop = async (shopId: string, shopName: string) => {
+    if (!confirm(`⚠️ "${shopName}" delete karein? Ye action undo nahi ho sakta!`)) return
+    await fetch('/api/admin/delete-shop', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ shopId }) 
+    })
+    flash('🗑️ Shop delete ho gayi')
     load('shops')
   }
 
@@ -249,11 +261,19 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-xs text-[#c9d1d9] font-medium">{shop.totalOrders}</td>
                         <td className="px-4 py-3 text-[10px] text-[#8b949e]">{fmt(shop.createdAt)}</td>
                         <td className="px-4 py-3">
-                          <button
-                            onClick={() => toggleShop(shop.id, !shop.isActive)}
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${shop.isActive ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-green-900/30 text-green-400 hover:bg-green-900/50'}`}>
-                            {shop.isActive ? 'Band Karo' : 'Active Karo'}
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => toggleShop(shop.id, !shop.isActive)}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${shop.isActive ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-green-900/30 text-green-400 hover:bg-green-900/50'}`}>
+                              {shop.isActive ? 'Band Karo' : 'Active Karo'}
+                            </button>
+                            {/* ⬇️ NAYA DELETE BUTTON */}
+                            <button
+                              onClick={() => deleteShop(shop.id, shop.shopName)}
+                              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-red-900/20 text-red-400 hover:bg-red-900/40 transition-colors">
+                              🗑️ Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
