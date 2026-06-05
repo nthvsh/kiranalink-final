@@ -42,11 +42,11 @@ const fmt = (d: string) => new Date(d).toLocaleDateString('hi-IN', { day: '2-dig
 // ─── Main Component ───────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter()
-  const [section, setSection] = useState<<Section>('dashboard')
-  const [stats, setStats] = useState<<Stats | null>(null)
-  const [shops, setShops] = useState<<Shop[]>([])
+  const [section, setSection] = useState<Section>('dashboard')
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [shops, setShops] = useState<Shop[]>([])
   const [orders, setOrders] = useState<Order[]>([])
-  const [categories, setCategories] = useState<<Category[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(false)
   const [shopSearch, setShopSearch] = useState('')
