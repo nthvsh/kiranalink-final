@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkDuplicateShop, getUniqueSlug, getTrialEndDate, createSessionToken, validateMobile } from '@/lib/utils'
+import { sendWelcomeMessage } from '@/lib/whatsapp'
 
 // Helper: Normalize mobile number — sirf last 10 digits
 function normalizeMobile(num: string): string {
@@ -92,6 +93,15 @@ export async function POST(req: NextRequest) {
         isActive: true,
       },
     })
+
+    // ⬇️ NAYA CODE — Welcome message bhejo (Twilio sandbox auto-verify)
+    try {
+      await sendWelcomeMessage(normalizedWhatsapp, shop.shopName)
+      console.log('✅ Welcome message sent to shopkeeper')
+    } catch (err) {
+      console.error('⚠️ Welcome message failed:', err)
+      // Fail hone par signup nahi rokna — continue
+    }
 
     // Create session token
     const token = await createSessionToken(shop.id, normalizedMobile)

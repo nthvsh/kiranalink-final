@@ -27,7 +27,6 @@ export function formatOrderMessage(data: OrderNotificationData): string {
   return `🛒 *Naya Order — ${data.shopName}*\n\n👤 Customer: ${data.customerName}\n📍 Address: ${data.customerAddress}\n📞 Mobile: ${data.customerMobile}\n\n📦 *Order List:*\n${itemsList}\n\n${deliveryLine}\n💳 Payment: ${data.paymentMethod}\n🕐 Order Time: ${data.orderTime}\n\n_KiranaLink se bheja gaya_`
 }
 
-// Normalize mobile number — sirf last 10 digits (cron/reminder ke liye bhi use hota hai)
 export function normalizeMobile(number: string): string {
   const digits = number.replace(/\D/g, '')
   return digits.slice(-10)
@@ -109,4 +108,38 @@ export async function sendSubscriptionReminder(
   const message = `⚠️ *${shopName} — Alert!*\n\nAapki shop ki link *${daysLeft} din mein expire* hone wali hai.\n\n❌ Link expire hone par customers order nahi de payenge.\n\n✅ Abhi ₹149 recharge karein — link turant active rahegi.\n\n👉 Recharge karein: ${appUrl}/recharge\n\n_KiranaLink — Aapki Digital Kirana_`
   
   return sendWhatsAppOrder(shopWhatsapp, message)
+}
+
+// ⬇️ NAYA FUNCTION — Shopkeeper Welcome Message
+export async function sendWelcomeMessage(
+  shopWhatsapp: string,
+  shopName: string
+): Promise<boolean> {
+  console.log('🚀 sendWelcomeMessage CALLED for:', shopWhatsapp)
+
+  const client = getTwilioClient()
+  const fromNumber = process.env.TWILIO_WHATSAPP_FROM
+  const toNumber = formatWhatsAppNumber(shopWhatsapp)
+
+  console.log('📱 Formatted to:', toNumber)
+
+  if (!client || !fromNumber) {
+    console.log('⚠️ Twilio DEV MODE — welcome message would be sent')
+    return true
+  }
+
+  const message = `🎉 Welcome to KiranaLink!\n\nAapki shop *${shopName}* successfully register ho gayi hai.\n\nAb jab bhi koi customer order karega, aapko yahin WhatsApp par notification mil jayega.\n\n_KiranaLink — Aapki Digital Kirana_`
+
+  try {
+    const result = await client.messages.create({
+      body: message,
+      from: fromNumber,
+      to: toNumber,
+    })
+    console.log('📨 Welcome Message SID:', result.sid)
+    return !!result.sid
+  } catch (error: any) {
+    console.error('❌ Welcome message error:', error.message)
+    return false
+  }
 }
