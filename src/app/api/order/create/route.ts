@@ -13,7 +13,7 @@ function formatCustomerConfirmationMessage(
 ): string {
   const deliveryText = homeDelivery
     ? '🛵 आपका ऑर्डर होम डिलीवरी के लिए कन्फर्म हो गया है। ₹30 डिलीवरी चार्ज जुड़ेगा।'
-    : '🏪 आपका ऑर्डर कन्फर्म हो गया है। कृपया शॉप से खुद ले जाएं।'
+    : '🏪 आपका ऑर्डर कन्फर्म हो गया है। कृपया शॉप से ले जाएं।'
 
   return `✅ *ऑर्डर कन्फर्म — ${shopName}*
 
@@ -150,6 +150,15 @@ export async function POST(req: NextRequest) {
       orderId: order.id,
       shopkeeperWhatsappSent,
       customerWhatsappSent,
+      debug: {
+        shopWhatsapp: shop.whatsapp,
+        shopMobile: shop.mobile,
+        hasWhatsapp: !!shop.whatsapp,
+        hasMobile: !!shop.mobile,
+        twilioSid: !!process.env.TWILIO_ACCOUNT_SID,
+        twilioToken: !!process.env.TWILIO_AUTH_TOKEN,
+        twilioFrom: process.env.TWILIO_WHATSAPP_FROM,
+      },
       message: 'Order confirm ho gaya!',
     })
   } catch (error) {
