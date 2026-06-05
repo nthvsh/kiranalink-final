@@ -87,14 +87,18 @@ export async function POST(req: NextRequest) {
     let shopkeeperWhatsappSent = false
     let customerWhatsappSent = false
 
+    // ⬇️ FIX: Shopkeeper WhatsApp number check
+    let shopkeeperNumber = shop.whatsapp || shop.mobile
+    if (!shopkeeperNumber) {
+      console.log('⚠️ Shopkeeper number missing!')
+      shopkeeperNumber = ''
+    } else {
+      console.log('📱 Shopkeeper number:', shopkeeperNumber)
+    }
+
     // 1. Send WhatsApp to shopkeeper
     console.log('🚀 === SHOPKEEPER WA START ===')
-    console.log('🚀 Shop object:', JSON.stringify(shop))
-    console.log('🚀 Shop whatsapp field:', shop.whatsapp)
-    console.log('🚀 Shop whatsapp type:', typeof shop.whatsapp)
-    console.log('🚀 Shop whatsapp empty:', !shop.whatsapp)
-    console.log('🚀 Shop mobile field:', shop.mobile)
-
+    
     const waMessage = formatOrderMessage({
       shopName: shop.shopName,
       customerName,
@@ -108,12 +112,16 @@ export async function POST(req: NextRequest) {
 
     console.log('🚀 Message formatted, length:', waMessage.length)
 
-    try {
-      shopkeeperWhatsappSent = await sendWhatsAppOrder(shop.whatsapp, waMessage)
-      console.log('🚀 === SHOPKEEPER WA END === result:', shopkeeperWhatsappSent)
-    } catch (err) {
-      console.error('❌ === SHOPKEEPER WA ERROR ===', err)
-      shopkeeperWhatsappSent = false
+    if (shopkeeperNumber) {
+      try {
+        shopkeeperWhatsappSent = await sendWhatsAppOrder(shopkeeperNumber, waMessage)
+        console.log('🚀 === SHOPKEEPER WA END === result:', shopkeeperWhatsappSent)
+      } catch (err: any) {
+        console.error('❌ === SHOPKEEPER WA ERROR ===', err.message)
+        shopkeeperWhatsappSent = false
+      }
+    } else {
+      console.log('⚠️ Skipping shopkeeper WA — no number')
     }
 
     console.log(`📤 Shopkeeper WA sent: ${shopkeeperWhatsappSent}`)
@@ -138,8 +146,8 @@ export async function POST(req: NextRequest) {
     try {
       customerWhatsappSent = await sendWhatsAppOrder(customerWhatsappNumber, customerMessage)
       console.log('🚀 === CUSTOMER WA END === result:', customerWhatsappSent)
-    } catch (err) {
-      console.error('❌ === CUSTOMER WA ERROR ===', err)
+    } catch (err: any) {
+      console.error('❌ === CUSTOMER WA ERROR ===', err.message)
       customerWhatsappSent = false
     }
 
@@ -153,6 +161,7 @@ export async function POST(req: NextRequest) {
       debug: {
         shopWhatsapp: shop.whatsapp,
         shopMobile: shop.mobile,
+        shopkeeperNumberUsed: shopkeeperNumber,
         hasWhatsapp: !!shop.whatsapp,
         hasMobile: !!shop.mobile,
         twilioSid: !!process.env.TWILIO_ACCOUNT_SID,
