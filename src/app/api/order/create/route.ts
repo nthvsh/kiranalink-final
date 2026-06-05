@@ -88,9 +88,12 @@ export async function POST(req: NextRequest) {
     let customerWhatsappSent = false
 
     // 1. Send WhatsApp to shopkeeper
-    console.log('📱 Shopkeeper WhatsApp number:', shop.whatsapp)
-    console.log('📱 Shopkeeper number exists:', !!shop.whatsapp)
-    console.log('📱 Shopkeeper number length:', shop.whatsapp?.length)
+    console.log('🚀 === SHOPKEEPER WA START ===')
+    console.log('🚀 Shop object:', JSON.stringify(shop))
+    console.log('🚀 Shop whatsapp field:', shop.whatsapp)
+    console.log('🚀 Shop whatsapp type:', typeof shop.whatsapp)
+    console.log('🚀 Shop whatsapp empty:', !shop.whatsapp)
+    console.log('🚀 Shop mobile field:', shop.mobile)
 
     const waMessage = formatOrderMessage({
       shopName: shop.shopName,
@@ -103,14 +106,21 @@ export async function POST(req: NextRequest) {
       orderTime,
     })
 
-    shopkeeperWhatsappSent = await sendWhatsAppOrder(shop.whatsapp, waMessage).catch(err => {
-      console.error('❌ Shopkeeper WA failed:', err)
-      return false
-    })
+    console.log('🚀 Message formatted, length:', waMessage.length)
+
+    try {
+      shopkeeperWhatsappSent = await sendWhatsAppOrder(shop.whatsapp, waMessage)
+      console.log('🚀 === SHOPKEEPER WA END === result:', shopkeeperWhatsappSent)
+    } catch (err) {
+      console.error('❌ === SHOPKEEPER WA ERROR ===', err)
+      shopkeeperWhatsappSent = false
+    }
 
     console.log(`📤 Shopkeeper WA sent: ${shopkeeperWhatsappSent}`)
 
     // 2. Send WhatsApp confirmation to customer
+    console.log('🚀 === CUSTOMER WA START ===')
+    
     const customerMessage = formatCustomerConfirmationMessage(
       shop.shopName,
       customerName,
@@ -123,12 +133,15 @@ export async function POST(req: NextRequest) {
     const customerMobileNormalized = customerMobile.replace(/\D/g, '').slice(-10)
     const customerWhatsappNumber = `91${customerMobileNormalized}`
 
-    console.log('📱 Customer WhatsApp number:', customerWhatsappNumber)
+    console.log('🚀 Customer number:', customerWhatsappNumber)
 
-    customerWhatsappSent = await sendWhatsAppOrder(customerWhatsappNumber, customerMessage).catch(err => {
-      console.error('❌ Customer WA failed:', err)
-      return false
-    })
+    try {
+      customerWhatsappSent = await sendWhatsAppOrder(customerWhatsappNumber, customerMessage)
+      console.log('🚀 === CUSTOMER WA END === result:', customerWhatsappSent)
+    } catch (err) {
+      console.error('❌ === CUSTOMER WA ERROR ===', err)
+      customerWhatsappSent = false
+    }
 
     console.log(`📤 Customer WA sent: ${customerWhatsappSent}`)
 
