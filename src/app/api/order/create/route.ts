@@ -88,6 +88,10 @@ export async function POST(req: NextRequest) {
     let customerWhatsappSent = false
 
     // 1. Send WhatsApp to shopkeeper
+    console.log('📱 Shopkeeper WhatsApp number:', shop.whatsapp)
+    console.log('📱 Shopkeeper number exists:', !!shop.whatsapp)
+    console.log('📱 Shopkeeper number length:', shop.whatsapp?.length)
+
     const waMessage = formatOrderMessage({
       shopName: shop.shopName,
       customerName,
@@ -100,7 +104,7 @@ export async function POST(req: NextRequest) {
     })
 
     shopkeeperWhatsappSent = await sendWhatsAppOrder(shop.whatsapp, waMessage).catch(err => {
-      console.error('Shopkeeper WA failed:', err)
+      console.error('❌ Shopkeeper WA failed:', err)
       return false
     })
 
@@ -119,8 +123,10 @@ export async function POST(req: NextRequest) {
     const customerMobileNormalized = customerMobile.replace(/\D/g, '').slice(-10)
     const customerWhatsappNumber = `91${customerMobileNormalized}`
 
+    console.log('📱 Customer WhatsApp number:', customerWhatsappNumber)
+
     customerWhatsappSent = await sendWhatsAppOrder(customerWhatsappNumber, customerMessage).catch(err => {
-      console.error('Customer WA failed:', err)
+      console.error('❌ Customer WA failed:', err)
       return false
     })
 
@@ -134,7 +140,7 @@ export async function POST(req: NextRequest) {
       message: 'Order confirm ho gaya!',
     })
   } catch (error) {
-    console.error('Order create error:', error)
+    console.error('❌ Order create error:', error)
     return NextResponse.json(
       { error: 'Order nahi ho paya. Dobara koshish karein.' },
       { status: 500 }

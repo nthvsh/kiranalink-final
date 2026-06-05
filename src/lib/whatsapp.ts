@@ -37,6 +37,10 @@ function getTwilioClient() {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
 
+  console.log('🔑 TWILIO_ACCOUNT_SID exists:', !!accountSid)
+  console.log('🔑 TWILIO_AUTH_TOKEN exists:', !!authToken)
+  console.log('🔑 TWILIO_WHATSAPP_FROM:', process.env.TWILIO_WHATSAPP_FROM)
+
   if (!accountSid || !authToken) {
     console.log('⚠️ Twilio DEV MODE — missing credentials')
     return null
@@ -55,6 +59,11 @@ export async function sendWhatsAppOrder(
   shopWhatsapp: string,
   message: string
 ): Promise<boolean> {
+  console.log('📱 Input number:', shopWhatsapp)
+  console.log('📱 Input type:', typeof shopWhatsapp)
+  console.log('📱 Input empty:', !shopWhatsapp)
+  console.log('📱 Input length:', shopWhatsapp?.length)
+
   const client = getTwilioClient()
   const fromNumber = process.env.TWILIO_WHATSAPP_FROM
 
@@ -72,6 +81,7 @@ export async function sendWhatsAppOrder(
   }
 
   try {
+    console.log('📤 Sending message via Twilio...')
     const result = await client.messages.create({
       body: message,
       from: fromNumber,
@@ -80,11 +90,13 @@ export async function sendWhatsAppOrder(
 
     console.log('📨 Twilio Message SID:', result.sid)
     console.log('📨 Status:', result.status)
+    console.log('📨 Direction:', result.direction)
 
     return !!result.sid
   } catch (error: any) {
     console.error('❌ Twilio send error:', error.message)
     console.error('❌ Error code:', error.code)
+    console.error('❌ Error status:', error.status)
     return false
   }
 }
