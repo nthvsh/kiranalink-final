@@ -59,10 +59,8 @@ export async function sendWhatsAppOrder(
   shopWhatsapp: string,
   message: string
 ): Promise<boolean> {
-  console.log('📱 Input number:', shopWhatsapp)
-  console.log('📱 Input type:', typeof shopWhatsapp)
-  console.log('📱 Input empty:', !shopWhatsapp)
-  console.log('📱 Input length:', shopWhatsapp?.length)
+  console.log('🚀🚀🚀 sendWhatsAppOrder CALLED')
+  console.log('🚀🚀🚀 shopWhatsapp:', shopWhatsapp)
 
   const client = getTwilioClient()
   const fromNumber = process.env.TWILIO_WHATSAPP_FROM
