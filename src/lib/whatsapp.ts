@@ -27,6 +27,12 @@ export function formatOrderMessage(data: OrderNotificationData): string {
   return `🛒 *Naya Order — ${data.shopName}*\n\n👤 Customer: ${data.customerName}\n📍 Address: ${data.customerAddress}\n📞 Mobile: ${data.customerMobile}\n\n📦 *Order List:*\n${itemsList}\n\n${deliveryLine}\n💳 Payment: ${data.paymentMethod}\n🕐 Order Time: ${data.orderTime}\n\n_KiranaLink se bheja gaya_`
 }
 
+// Normalize mobile number — sirf last 10 digits (cron/reminder ke liye bhi use hota hai)
+export function normalizeMobile(number: string): string {
+  const digits = number.replace(/\D/g, '')
+  return digits.slice(-10)
+}
+
 function getTwilioClient() {
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken = process.env.TWILIO_AUTH_TOKEN
