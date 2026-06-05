@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
           razorpayOrderId: mockOrderId,
           amount,
           status: 'pending',
-          subscriptionEndsAt: newExpiryDate,
         },
       })
 
@@ -118,7 +117,7 @@ export async function POST(req: NextRequest) {
     const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64')
     const rzpRes = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
-     headers: {
+      headers: {
         Authorization: `Basic ${credentials}`,
         'Content-Type': 'application/json',
       },
@@ -143,14 +142,13 @@ export async function POST(req: NextRequest) {
       }, { status: 500 })
     }
 
-    // Save pending payment with calculated expiry
+    // Save pending payment
     await prisma.payment.create({
       data: {
         shopId: shop.id,
         razorpayOrderId: rzpData.id,
         amount,
         status: 'pending',
-        subscriptionEndsAt: newExpiryDate,
       },
     })
 

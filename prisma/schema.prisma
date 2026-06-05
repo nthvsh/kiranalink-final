@@ -73,6 +73,7 @@ model Payment {
   razorpayPaymentId String?
   amount            Int
   status            String   @default("pending")
+  subscriptionEndsAt DateTime?  // ← Yeh add kiya hai
   createdAt         DateTime @default(now())
 
   @@index([shopId])
