@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [shop, setShop] = useState<ShopData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [verified, setVerified] = useState(false)
 
   useEffect(() => {
     fetch('/api/shop/me')
@@ -49,6 +51,33 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await fetch('/api/shop/me', { method: 'DELETE' })
     router.push('/')
+  }
+
+  // ⬇️ NEW: WhatsApp Verify Function
+  const verifyWhatsApp = async () => {
+    if (!shop) return
+    
+    setVerifying(true)
+    try {
+      const res = await fetch('/api/shopkeeper/verify-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: shop.shopLink.split('/shop/')[1].replace(/-/g, '') })
+      })
+      
+      const data = await res.json()
+      
+      if (data.success) {
+        setVerified(true)
+        alert('✅ WhatsApp verify ho gaya! Ab orders aapke WhatsApp par aayenge.')
+      } else {
+        alert('⚠️ Verify nahi ho paya. Dobara koshish karein.')
+      }
+    } catch (err) {
+      alert('❌ Error aa gaya. Dobara koshish karein.')
+    } finally {
+      setVerifying(false)
+    }
   }
 
   const getDaysLeft = () => {
@@ -120,7 +149,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Main Card — ONLY the shop link as per master plan */}
+      {/* Main Card */}
       <div className="bg-white rounded-2xl p-7 w-full max-w-md border border-[#E0DDD6] shadow-sm">
         <div className="text-center mb-6">
           <div className="text-4xl mb-3">🔗</div>
@@ -146,6 +175,40 @@ export default function DashboardPage() {
           className="w-full py-3.5 bg-[#25D366] hover:bg-[#1fba59] text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
           <span>📤</span> WhatsApp par Share Karein
         </button>
+
+        {/* ⬇️ NEW: WhatsApp Verify Step */}
+        {!verified && (
+          <div className="mt-4 bg-[#FFF8E1] border border-[#FFC107] rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">📱</span>
+              <div className="flex-1">
+                <h3 className="font-semibold text-[#856404] text-sm">WhatsApp Verify Karein</h3>
+                <p className="text-xs text-[#856404] mt-1">
+                  Orders paane ke liye neeche click karein.
+                </p>
+                <button
+                  onClick={verifyWhatsApp}
+                  disabled={verifying}
+                  className="mt-3 w-full py-2.5 bg-[#FFC107] text-[#856404] font-semibold rounded-lg hover:bg-[#FFD54F] transition-colors disabled:opacity-50 text-sm"
+                >
+                  {verifying ? 'Verifying...' : '✅ WhatsApp Verify Karein'}
+                </button>
+                <p className="text-[10px] text-[#856404] mt-2 text-center">
+                  Ya manually: 📞 +1 415 523 8886 → 📝 join fresh-trick
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {verified && (
+          <div className="mt-4 bg-[#E8F5E9] border border-[#4CAF50] rounded-xl p-4 text-center">
+            <span className="text-2xl">✅</span>
+            <p className="text-sm text-[#2E7D32] font-semibold mt-1">
+              WhatsApp verify ho gaya! Ab orders aayenge.
+            </p>
+          </div>
+        )}
 
         {/* Subscription Status */}
         <div className="mt-5 pt-4 border-t border-[#EEE] text-center">
