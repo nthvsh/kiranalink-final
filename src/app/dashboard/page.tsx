@@ -18,7 +18,7 @@ interface ShopData {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [shop, setShop] = useState<<ShopData | null>(null)
+  const [shop, setShop] = useState<ShopData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [verifying, setVerifying] = useState(false)
