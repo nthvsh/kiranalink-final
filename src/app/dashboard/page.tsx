@@ -8,6 +8,8 @@ interface ShopData {
   shopName: string
   ownerName: string
   slug: string
+  mobile: string
+  whatsapp: string
   shopLink: string
   isSubscriptionActive: boolean
   trialEndsAt: string
@@ -53,22 +55,12 @@ export default function DashboardPage() {
     router.push('/')
   }
 
-  // ⬇️ NEW: WhatsApp Verify Function
   const verifyWhatsApp = async () => {
     if (!shop) return
     
     setVerifying(true)
     try {
-      // Pehle shop details lo API se (mobile number ke liye)
-      const shopRes = await fetch('/api/shop/me')
-      const shopData = await shopRes.json()
-      
-      if (!shopData.shop) {
-        alert('❌ Shop data nahi mila')
-        return
-      }
-
-      const mobile = shopData.shop.mobile || shopData.shop.whatsapp
+      const mobile = shop.mobile || shop.whatsapp
       
       if (!mobile) {
         alert('❌ Mobile number nahi mila')
@@ -192,7 +184,7 @@ export default function DashboardPage() {
           <span>📤</span> WhatsApp par Share Karein
         </button>
 
-        {/* ⬇️ NEW: WhatsApp Verify Step */}
+        {/* WhatsApp Verify Step */}
         {!verified && (
           <div className="mt-4 bg-[#FFF8E1] border border-[#FFC107] rounded-xl p-4">
             <div className="flex items-start gap-3">
