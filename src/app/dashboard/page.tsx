@@ -16,7 +16,7 @@ interface ShopData {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [shop, setShop] = useState<ShopData | null>(null)
+  const [shop, setShop] = useState<<ShopData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [verifying, setVerifying] = useState(false)
@@ -59,10 +59,26 @@ export default function DashboardPage() {
     
     setVerifying(true)
     try {
+      // Pehle shop details lo API se (mobile number ke liye)
+      const shopRes = await fetch('/api/shop/me')
+      const shopData = await shopRes.json()
+      
+      if (!shopData.shop) {
+        alert('❌ Shop data nahi mila')
+        return
+      }
+
+      const mobile = shopData.shop.mobile || shopData.shop.whatsapp
+      
+      if (!mobile) {
+        alert('❌ Mobile number nahi mila')
+        return
+      }
+
       const res = await fetch('/api/shopkeeper/verify-whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: shop.shopLink.split('/shop/')[1].replace(/-/g, '') })
+        body: JSON.stringify({ mobile })
       })
       
       const data = await res.json()
