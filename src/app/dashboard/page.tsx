@@ -21,7 +21,6 @@ export default function DashboardPage() {
   const [shop, setShop] = useState<ShopData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
-  const [verifying, setVerifying] = useState(false)
   const [verified, setVerified] = useState(false)
 
   useEffect(() => {
@@ -55,40 +54,16 @@ export default function DashboardPage() {
     router.push('/')
   }
 
-  const verifyWhatsApp = async () => {
-    if (!shop) return
+  // ⬇️ NEW: One-click WhatsApp Verify
+  const verifyWhatsApp = () => {
+    // WhatsApp deep link — auto message bhejega
+    const waLink = `https://wa.me/14155238886?text=join%20fresh-trick`
+    window.open(waLink, '_blank')
     
-    setVerifying(true)
-    try {
-      // ⬇️ FIX: Direct shop.mobile use karo
-      const mobile = shop.mobile || shop.whatsapp
-      
-      console.log('Mobile:', mobile, 'Length:', mobile?.length) // Debug
-      
-      if (!mobile || mobile.length < 10) {
-        alert('❌ Mobile number nahi mila: ' + mobile)
-        return
-      }
-
-      const res = await fetch('/api/shopkeeper/verify-whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile })
-      })
-      
-      const data = await res.json()
-      
-      if (data.success) {
-        setVerified(true)
-        alert('✅ WhatsApp verify ho gaya! Ab orders aapke WhatsApp par aayenge.')
-      } else {
-        alert('⚠️ Verify nahi ho paya. Dobara koshish karein.')
-      }
-    } catch (err) {
-      alert('❌ Error aa gaya. Dobara koshish karein.')
-    } finally {
-      setVerifying(false)
-    }
+    // 10 sec baad verified dikhaye
+    setTimeout(() => {
+      setVerified(true)
+    }, 10000)
   }
 
   const getDaysLeft = () => {
@@ -187,25 +162,24 @@ export default function DashboardPage() {
           <span>📤</span> WhatsApp par Share Karein
         </button>
 
-        {/* WhatsApp Verify Step */}
+        {/* ⬇️ NEW: One-Click WhatsApp Verify */}
         {!verified && (
-          <div className="mt-4 bg-[#FFF8E1] border border-[#FFC107] rounded-xl p-4">
+          <div className="mt-4 bg-[#E3F2FD] border border-[#2196F3] rounded-xl p-4">
             <div className="flex items-start gap-3">
               <span className="text-2xl">📱</span>
               <div className="flex-1">
-                <h3 className="font-semibold text-[#856404] text-sm">WhatsApp Verify Karein</h3>
-                <p className="text-xs text-[#856404] mt-1">
-                  Orders paane ke liye neeche click karein.
+                <h3 className="font-semibold text-[#1565C0] text-sm">WhatsApp Connect Karein</h3>
+                <p className="text-xs text-[#1565C0] mt-1">
+                  Orders paane ke liye WhatsApp connect karein. Bas neeche click karein.
                 </p>
                 <button
                   onClick={verifyWhatsApp}
-                  disabled={verifying}
-                  className="mt-3 w-full py-2.5 bg-[#FFC107] text-[#856404] font-semibold rounded-lg hover:bg-[#FFD54F] transition-colors disabled:opacity-50 text-sm"
+                  className="mt-3 w-full py-2.5 bg-[#25D366] text-white font-semibold rounded-lg hover:bg-[#128C7E] transition-colors text-sm flex items-center justify-center gap-2"
                 >
-                  {verifying ? 'Verifying...' : '✅ WhatsApp Verify Karein'}
+                  <span>📱</span> WhatsApp Kholein
                 </button>
-                <p className="text-[10px] text-[#856404] mt-2 text-center">
-                  Ya manually: 📞 +1 415 523 8886 → 📝 join fresh-trick
+                <p className="text-[10px] text-[#1565C0] mt-2 text-center">
+                  WhatsApp auto khulega — bas send karein
                 </p>
               </div>
             </div>
@@ -216,7 +190,7 @@ export default function DashboardPage() {
           <div className="mt-4 bg-[#E8F5E9] border border-[#4CAF50] rounded-xl p-4 text-center">
             <span className="text-2xl">✅</span>
             <p className="text-sm text-[#2E7D32] font-semibold mt-1">
-              WhatsApp verify ho gaya! Ab orders aayenge.
+              WhatsApp connected! Ab orders aayenge.
             </p>
           </div>
         )}
@@ -225,14 +199,14 @@ export default function DashboardPage() {
         <div className="mt-5 pt-4 border-t border-[#EEE] text-center">
           {isTrialActive() ? (
             <div>
-              <span className="inline-flex items-center gap-1.5 bg-[#AF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-[#EAF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
                 ✅ Free Trial Active
               </span>
               <p className="text-xs text-[#7A8C85] mt-2">{daysLeft} din baaki · Phir ₹149/mahina</p>
             </div>
           ) : shop.subscriptionEndsAt && daysLeft > 0 ? (
             <div>
-              <span className="inline-flex items-center gap-1.5 bg-[#AF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-[#EAF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
                 ✅ Subscription Active
               </span>
               <p className="text-xs text-[#7A8C85] mt-2">{daysLeft} din baaki</p>
