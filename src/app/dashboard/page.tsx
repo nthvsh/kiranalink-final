@@ -18,7 +18,7 @@ interface ShopData {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [shop, setShop] = useState<ShopData | null>(null)
+  const [shop, setShop] = useState<<ShopData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [verifying, setVerifying] = useState(false)
@@ -60,10 +60,13 @@ export default function DashboardPage() {
     
     setVerifying(true)
     try {
+      // ⬇️ FIX: Direct shop.mobile use karo
       const mobile = shop.mobile || shop.whatsapp
       
-      if (!mobile) {
-        alert('❌ Mobile number nahi mila')
+      console.log('Mobile:', mobile, 'Length:', mobile?.length) // Debug
+      
+      if (!mobile || mobile.length < 10) {
+        alert('❌ Mobile number nahi mila: ' + mobile)
         return
       }
 
@@ -222,14 +225,14 @@ export default function DashboardPage() {
         <div className="mt-5 pt-4 border-t border-[#EEE] text-center">
           {isTrialActive() ? (
             <div>
-              <span className="inline-flex items-center gap-1.5 bg-[#EAF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-[#AF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
                 ✅ Free Trial Active
               </span>
               <p className="text-xs text-[#7A8C85] mt-2">{daysLeft} din baaki · Phir ₹149/mahina</p>
             </div>
           ) : shop.subscriptionEndsAt && daysLeft > 0 ? (
             <div>
-              <span className="inline-flex items-center gap-1.5 bg-[#EAF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-[#AF5EE] text-[#1B6B3A] text-xs font-semibold px-3 py-1.5 rounded-full">
                 ✅ Subscription Active
               </span>
               <p className="text-xs text-[#7A8C85] mt-2">{daysLeft} din baaki</p>
