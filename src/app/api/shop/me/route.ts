@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
         shopName: true,
         ownerName: true,
         slug: true,
+        mobile: true,
         whatsapp: true,
         isActive: true,
         trialEndsAt: true,
