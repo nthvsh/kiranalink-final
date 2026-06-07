@@ -38,6 +38,7 @@ interface Item {
   brands: string[]
   categoryId: string
   subCategoryId: string
+  isActive?: boolean
 }
 
 interface CartItem {
