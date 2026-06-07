@@ -20,6 +20,7 @@ interface Category {
   name: string
   nameHindi: string
   icon: string
+  isActive?: boolean
 }
 
 interface SubCategory {
@@ -27,6 +28,8 @@ interface SubCategory {
   name: string
   nameHindi: string
   icon: string | null
+  categoryId: string
+  isActive?: boolean
 }
 
 interface Item {
@@ -34,7 +37,7 @@ interface Item {
   name: string
   nameHindi: string
   imageUrl: string | null
-  units: string[]  // ['grams', 'kg', 'packet', 'piece']
+  units: string[]
   brands: string[]
   categoryId: string
   subCategoryId: string
@@ -45,9 +48,9 @@ interface CartItem {
   itemId: string
   itemName: string
   brand: string
-  unit: string  // 'grams' | 'kg' | 'packet' | 'piece'
-  quantity: string  // user entered value
-  unitLabel: string  // for display: 'g', 'kg', 'packet', 'piece'
+  unit: string
+  quantity: string
+  unitLabel: string
 }
 
 export default function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -64,7 +67,6 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
   const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null)
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   
-  // Selection state for each item
   const [selectedBrand, setSelectedBrand] = useState<Record<string, string>>({})
   const [selectedUnit, setSelectedUnit] = useState<Record<string, string>>({})
   const [selectedQuantity, setSelectedQuantity] = useState<Record<string, string>>({})
@@ -79,41 +81,52 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
   const [orderId, setOrderId] = useState('')
   const [formError, setFormError] = useState('')
 
-  // Fetch shop and items data
+  // Fetch shop data
   useEffect(() => {
-    async function fetchData() {
+    async function fetchShop() {
       try {
-        const shopRes = await fetch(`/api/shop/${slug}`)
-        const shopData = await shopRes.json()
-        if (shopData.error) {
+        const res = await fetch(`/api/shop/${slug}`)
+        const data = await res.json()
+        if (data.error) {
           setNotFound(true)
-          setLoading(false)
-          return
+        } else {
+          setShop(data.shop)
         }
-        setShop(shopData.shop)
-
-        // Fetch categories, subcategories, items from API
-        const [catRes, subCatRes, itemsRes] = await Promise.all([
-          fetch('/api/shop/categories'),
-          fetch('/api/shop/subcategories'),
-          fetch('/api/shop/items')
-        ])
-        
-        const catData = await catRes.json()
-        const subCatData = await subCatRes.json()
-        const itemsData = await itemsRes.json()
-        
-        if (!catData.error) setCategories(catData.categories)
-        if (!subCatData.error) setSubCategories(subCatData.subCategories)
-        if (!itemsData.error) setItems(itemsData.items)
       } catch {
         setNotFound(true)
       } finally {
         setLoading(false)
       }
     }
-    fetchData()
+    fetchShop()
   }, [slug])
+
+  // Fetch categories, subcategories, items when shop loads
+  useEffect(() => {
+    if (!shop) return
+    
+    async function fetchCatalog() {
+      try {
+        const [catRes, subRes, itemRes] = await Promise.all([
+          fetch('/api/shop/categories'),
+          fetch('/api/shop/subcategories'),
+          fetch('/api/shop/items')
+        ])
+        
+        const catData = await catRes.json()
+        const subData = await subRes.json()
+        const itemData = await itemRes.json()
+        
+        if (!catData.error) setCategories(catData.categories || [])
+        if (!subData.error) setSubCategories(subData.subCategories || [])
+        if (!itemData.error) setItems(itemData.items || [])
+      } catch (err) {
+        console.error('Failed to fetch catalog:', err)
+      }
+    }
+    
+    fetchCatalog()
+  }, [shop])
 
   const getItemsBySubCategory = (subCategoryId: string) => {
     return items.filter(item => item.subCategoryId === subCategoryId && item.isActive !== false)
@@ -124,8 +137,8 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
   }
 
   const addToCart = (item: Item) => {
-    const brand = selectedBrand[item.id] || item.brands[0] || 'Local'
-    const unit = selectedUnit[item.id] || (item.units[0] || 'kg')
+    const brand = selectedBrand[item.id] || (item.brands && item.brands[0]) || 'Local'
+    const unit = selectedUnit[item.id] || (item.units && item.units[0]) || 'kg'
     const quantity = selectedQuantity[item.id] || '1'
     
     let unitLabel = ''
@@ -154,7 +167,6 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
       }])
     }
     setExpandedItem(null)
-    // Reset selection for this item
     setSelectedQuantity(prev => ({ ...prev, [item.id]: '1' }))
   }
 
@@ -261,7 +273,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
   return (
     <main className="min-h-screen bg-[#F7F4EF]">
 
-      {/* Shop Header - SAME AS BEFORE */}
+      {/* Shop Header */}
       <div className="bg-[#2D6A4F] text-white px-4 py-5">
         <div className="max-w-lg mx-auto">
           {shop.bannerUrl && (
@@ -443,9 +455,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
 
                                       {/* Quantity - Manual Input */}
                                       <div>
-                                        <p className="text-xs font-bold text-[#3D5A50] mb-1.5">
-                                          Quantity:
-                                        </p>
+                                        <p className="text-xs font-bold text-[#3D5A50] mb-1.5">Quantity:</p>
                                         <div className="flex items-center gap-2">
                                           <input
                                             type="number"
@@ -457,9 +467,9 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
                                             placeholder="Kitna?"
                                           />
                                           <span className="text-xs text-[#7A8C85]">
-                                            {(selectedUnit[item.id] || item.units?.[0] || 'kg') === 'grams' ? 'g' :
-                                             (selectedUnit[item.id] || item.units?.[0] || 'kg') === 'kg' ? 'kg' :
-                                             (selectedUnit[item.id] || item.units?.[0] || 'kg') === 'packet' ? 'packets' : 'pieces'}
+                                            {(selectedUnit[item.id] || (item.units && item.units[0]) || 'kg') === 'grams' ? 'g' :
+                                             (selectedUnit[item.id] || (item.units && item.units[0]) || 'kg') === 'kg' ? 'kg' :
+                                             (selectedUnit[item.id] || (item.units && item.units[0]) || 'kg') === 'packet' ? 'packets' : 'pieces'}
                                           </span>
                                         </div>
                                       </div>
