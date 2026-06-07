@@ -6,7 +6,13 @@ export async function GET(req: NextRequest) {
   if (!await getAdminSession(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const categories = await prisma.category.findMany({
     orderBy: { sortOrder: 'asc' },
-    include: { _count: { select: { items: true } } },
+    include: { 
+      _count: { select: { items: true, subCategories: true } },
+      subCategories: {
+        orderBy: { sortOrder: 'asc' },
+        select: { id: true, name: true, isActive: true }
+      }
+    },
   })
   return NextResponse.json({ categories })
 }
