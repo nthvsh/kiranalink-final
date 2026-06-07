@@ -86,6 +86,7 @@ model Category {
   sortOrder     Int           @default(0)
   isActive      Boolean       @default(true)
   subCategories SubCategory[]
+  items         Item[]
 }
 
 model SubCategory {
