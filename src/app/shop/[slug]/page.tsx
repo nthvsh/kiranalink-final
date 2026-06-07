@@ -52,18 +52,18 @@ interface CartItem {
 
 export default function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
-  const [shop, setShop] = useState<<ShopInfo | null>(null)
+  const [shop, setShop] = useState<ShopInfo | null>(null)
   const [categories, setCategories] = useState<CatalogCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   
-  const [cart, setCart] = useState<<CartItem[]>([])
+  const [cart, setCart] = useState<CartItem[]>([])
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [activeSubCategory, setActiveSubCategory] = useState<string | null>(null)
   
-  const [selectedBrand, setSelectedBrand] = useState<<Record<string, string>>({})
-  const [selectedUnit, setSelectedUnit] = useState<<Record<string, string>>({})
-  const [selectedQuantity, setSelectedQuantity] = useState<<Record<string, string>>({})
+  const [selectedBrand, setSelectedBrand] = useState<Record<string, string>>({})
+  const [selectedUnit, setSelectedUnit] = useState<Record<string, string>>({})
+  const [selectedQuantity, setSelectedQuantity] = useState<Record<string, string>>({})
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   
   const [homeDelivery, setHomeDelivery] = useState(false)
