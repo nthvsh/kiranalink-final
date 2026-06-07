@@ -52,7 +52,6 @@ export async function PATCH(req: NextRequest) {
   
   const { id, ...data } = await req.json()
   
-  // type field aa jaye to remove karo — ab exist nahi karta
   if ('type' in data) delete data.type
   
   const item = await prisma.item.update({ where: { id }, data })
