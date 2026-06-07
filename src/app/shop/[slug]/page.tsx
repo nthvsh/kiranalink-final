@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState, use } from 'react'
-import { KIRANA_CATEGORIES, LOOSE_QUANTITIES, PACKET_QUANTITIES, KiranaItem } from '@/lib/items-data'
 
 interface ShopInfo {
   id: string
@@ -16,30 +15,59 @@ interface ShopInfo {
   isActive: boolean
 }
 
+interface Category {
+  id: string
+  name: string
+  nameHindi: string
+  icon: string
+}
+
+interface SubCategory {
+  id: string
+  name: string
+  nameHindi: string
+  icon: string | null
+}
+
+interface Item {
+  id: string
+  name: string
+  nameHindi: string
+  imageUrl: string | null
+  units: string[]  // ['grams', 'kg', 'packet', 'piece']
+  brands: string[]
+  categoryId: string
+  subCategoryId: string
+}
+
 interface CartItem {
   itemId: string
   itemName: string
   brand: string
-  itemType: 'packet_only' | 'packet_and_loose'
-  packType: 'packet' | 'loose'
-  quantity: string
-}
-
-interface ItemSelectorState {
-  brand: string
-  packType: 'packet' | 'loose'
-  quantity: string
+  unit: string  // 'grams' | 'kg' | 'packet' | 'piece'
+  quantity: string  // user entered value
+  unitLabel: string  // for display: 'g', 'kg', 'packet', 'piece'
 }
 
 export default function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const [shop, setShop] = useState<ShopInfo | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([])
+  const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  
   const [cart, setCart] = useState<CartItem[]>([])
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null)
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
-  const [selectorState, setSelectorState] = useState<Record<string, ItemSelectorState>>({})
+  
+  // Selection state for each item
+  const [selectedBrand, setSelectedBrand] = useState<Record<string, string>>({})
+  const [selectedUnit, setSelectedUnit] = useState<Record<string, string>>({})
+  const [selectedQuantity, setSelectedQuantity] = useState<Record<string, string>>({})
+  
   const [homeDelivery, setHomeDelivery] = useState(false)
   const [customerName, setCustomerName] = useState('')
   const [customerAddress, setCustomerAddress] = useState('')
@@ -50,63 +78,90 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
   const [orderId, setOrderId] = useState('')
   const [formError, setFormError] = useState('')
 
+  // Fetch shop and items data
   useEffect(() => {
-    fetch(`/api/shop/${slug}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.error) { setNotFound(true); return }
-        setShop(data.shop)
-      })
-      .catch(() => setNotFound(true))
-      .finally(() => setLoading(false))
+    async function fetchData() {
+      try {
+        const shopRes = await fetch(`/api/shop/${slug}`)
+        const shopData = await shopRes.json()
+        if (shopData.error) {
+          setNotFound(true)
+          setLoading(false)
+          return
+        }
+        setShop(shopData.shop)
+
+        // Fetch categories, subcategories, items from API
+        const [catRes, subCatRes, itemsRes] = await Promise.all([
+          fetch('/api/shop/categories'),
+          fetch('/api/shop/subcategories'),
+          fetch('/api/shop/items')
+        ])
+        
+        const catData = await catRes.json()
+        const subCatData = await subCatRes.json()
+        const itemsData = await itemsRes.json()
+        
+        if (!catData.error) setCategories(catData.categories)
+        if (!subCatData.error) setSubCategories(subCatData.subCategories)
+        if (!itemsData.error) setItems(itemsData.items)
+      } catch {
+        setNotFound(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
   }, [slug])
 
-  const getSelector = (itemId: string, item: KiranaItem): ItemSelectorState => {
-    return selectorState[itemId] || {
-      brand: item.brands[0],
-      packType: 'packet',
-      quantity: item.type === 'packet_only' ? '1' : '1',
-    }
+  const getItemsBySubCategory = (subCategoryId: string) => {
+    return items.filter(item => item.subCategoryId === subCategoryId && item.isActive !== false)
   }
 
-  const updateSelector = (itemId: string, update: Partial<ItemSelectorState>) => {
-    setSelectorState(prev => ({
-      ...prev,
-      [itemId]: { ...getSelector(itemId, KIRANA_CATEGORIES.flatMap(c => c.items).find(i => i.id === itemId)!), ...update },
-    }))
+  const getSubCategoriesByCategory = (categoryId: string) => {
+    return subCategories.filter(sub => sub.categoryId === categoryId && sub.isActive !== false)
   }
 
-  const addToCart = (item: KiranaItem) => {
-    const sel = getSelector(item.id, item)
-    const qty = sel.packType === 'loose' ? sel.quantity : String(sel.quantity)
-    const existing = cart.findIndex(c =>
-      c.itemId === item.id && c.brand === sel.brand && c.packType === sel.packType && c.quantity === qty
+  const addToCart = (item: Item) => {
+    const brand = selectedBrand[item.id] || item.brands[0] || 'Local'
+    const unit = selectedUnit[item.id] || (item.units[0] || 'kg')
+    const quantity = selectedQuantity[item.id] || '1'
+    
+    let unitLabel = ''
+    if (unit === 'grams') unitLabel = 'g'
+    else if (unit === 'kg') unitLabel = 'kg'
+    else if (unit === 'packet') unitLabel = 'packet'
+    else unitLabel = 'piece'
+    
+    const existingIndex = cart.findIndex(c => 
+      c.itemId === item.id && c.brand === brand && c.unit === unit
     )
-    if (existing >= 0) {
+    
+    if (existingIndex >= 0) {
       const newCart = [...cart]
-      if (sel.packType === 'packet') {
-        const cur = parseInt(newCart[existing].quantity)
-        newCart[existing].quantity = String(cur + 1)
-      }
+      const newQty = parseFloat(newCart[existingIndex].quantity) + parseFloat(quantity)
+      newCart[existingIndex].quantity = String(newQty)
       setCart(newCart)
     } else {
       setCart(prev => [...prev, {
         itemId: item.id,
         itemName: item.name,
-        brand: sel.brand,
-        itemType: item.type,
-        packType: sel.packType,
-        quantity: qty,
+        brand: brand,
+        unit: unit,
+        quantity: quantity,
+        unitLabel: unitLabel,
       }])
     }
     setExpandedItem(null)
+    // Reset selection for this item
+    setSelectedQuantity(prev => ({ ...prev, [item.id]: '1' }))
   }
 
   const removeFromCart = (idx: number) => {
     setCart(prev => prev.filter((_, i) => i !== idx))
   }
 
-  const totalItems = cart.length
+  const totalItems = cart.reduce((sum, item) => sum + parseFloat(item.quantity), 0)
   const deliveryCharge = homeDelivery ? 30 : 0
 
   const handleConfirmOrder = async () => {
@@ -115,6 +170,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
     if (!customerName.trim()) { setFormError('Apna naam bharein.'); return }
     if (!customerMobile.trim() || !/^[6-9]\d{9}$/.test(customerMobile)) { setFormError('Sahi mobile number bharein.'); return }
     if (!customerAddress.trim()) { setFormError('Apna pata bharein.'); return }
+    if (cart.length === 0) { setFormError('Koi item cart mein nahi hai.'); return }
     setShowConfirmModal(true)
   }
 
@@ -134,7 +190,8 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
             name: c.itemName,
             brand: c.brand !== 'Local' ? c.brand : undefined,
             quantity: c.quantity,
-            unit: c.packType === 'loose' ? c.quantity : undefined,
+            unit: c.unit,
+            unitLabel: c.unitLabel,
           })),
           homeDelivery,
           paymentMethod: shop.paymentRaw === 'both' ? 'Cash / UPI' : shop.paymentRaw === 'cash' ? 'Cash on Delivery' : 'UPI',
@@ -175,7 +232,6 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
         <div className="text-4xl mb-3">⏸️</div>
         <h2 className="text-lg font-bold text-[#1B3A2F] mb-2">Shop Abhi Band Hai</h2>
         <p className="text-sm text-[#5A7A6A]">Shopkeeper ka subscription expire ho gaya hai. Baad mein koshish karein.</p>
-        <p className="text-xs text-[#9AADA6] mt-2">{shop?.timing}</p>
       </div>
     </div>
   )
@@ -193,14 +249,6 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
           <p className="text-xs text-[#7A8C85]">Order ID</p>
           <p className="text-sm font-mono font-bold text-[#1B3A2F]">{orderId.slice(-8).toUpperCase()}</p>
         </div>
-        <div className="text-left bg-[#F0FAF4] rounded-xl p-3 mb-4">
-          <p className="text-xs font-bold text-[#2D6A4F] mb-2">Aapka Order ({cart.length} items):</p>
-          {cart.slice(0, 5).map((item, i) => (
-            <p key={i} className="text-xs text-[#3D5A50]">• {item.brand !== 'Local' ? item.brand + ' ' : ''}{item.itemName} {item.packType === 'loose' ? item.quantity : `x${item.quantity}`}</p>
-          ))}
-          {cart.length > 5 && <p className="text-xs text-[#7A8C85]">...aur {cart.length - 5} items</p>}
-        </div>
-        {homeDelivery && <p className="text-xs text-[#5A7A6A] mb-4">🛵 Home Delivery: +₹30</p>}
         <button onClick={() => window.location.reload()}
           className="w-full py-3 bg-[#2D6A4F] text-white rounded-xl font-semibold text-sm">
           Naya Order Dena Hai
@@ -212,7 +260,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
   return (
     <main className="min-h-screen bg-[#F7F4EF]">
 
-      {/* Shop Header */}
+      {/* Shop Header - SAME AS BEFORE */}
       <div className="bg-[#2D6A4F] text-white px-4 py-5">
         <div className="max-w-lg mx-auto">
           {shop.bannerUrl && (
@@ -244,8 +292,8 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
 
       <div className="max-w-lg mx-auto px-3 py-4 pb-40">
 
-        {/* Cart Summary (sticky top) */}
-        {totalItems > 0 && (
+        {/* Cart Summary */}
+        {cart.length > 0 && (
           <div className="bg-[#2D6A4F] text-white rounded-xl px-4 py-2.5 mb-4 flex items-center justify-between sticky top-2 z-20 shadow-lg">
             <span className="text-sm font-semibold">🛒 {totalItems} item{totalItems > 1 ? 's' : ''} select hua</span>
             <span className="text-xs bg-white/20 px-2 py-1 rounded-lg">Neeche dekho ↓</span>
@@ -255,156 +303,209 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
         {/* Instructions */}
         <div className="bg-white rounded-xl px-4 py-3 mb-4 border border-[#E0DDD6]">
           <p className="text-sm font-bold text-[#1B3A2F] mb-1">📋 Order Kaise Karein?</p>
-          <p className="text-xs text-[#5A7A6A] leading-relaxed">Category select karein → Item chunein → Brand aur quantity daalo → "Cart mein Daalo" press karein → Neeche apna naam/pata bharein → Order Confirm karein</p>
+          <p className="text-xs text-[#5A7A6A] leading-relaxed">Category select karein → Sub-category select karein → Item chunein → Brand, unit aur quantity daalein → "Cart Mein Daalo" press karein → Neeche apna naam/pata bharein → Order Confirm karein</p>
         </div>
 
-        {/* Categories */}
-        {KIRANA_CATEGORIES.map(category => (
-          <div key={category.id} className="bg-white rounded-xl border border-[#E0DDD6] mb-3 overflow-hidden">
-            <button
-              onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-              className="w-full flex items-center justify-between px-4 py-3.5 text-left"
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="text-xl">{category.icon}</span>
-                <div>
-                  <p className="text-sm font-bold text-[#1B3A2F]">{category.name}</p>
-                  <p className="text-xs text-[#7A8C85]">{category.items.length} items</p>
+        {/* Categories - 2 Level Navigation */}
+        {categories.filter(c => c.isActive !== false).map(category => {
+          const subCats = getSubCategoriesByCategory(category.id)
+          const isCatExpanded = expandedCategory === category.id
+          
+          return (
+            <div key={category.id} className="bg-white rounded-xl border border-[#E0DDD6] mb-3 overflow-hidden">
+              <button
+                onClick={() => setExpandedCategory(isCatExpanded ? null : category.id)}
+                className="w-full flex items-center justify-between px-4 py-3.5 text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl">{category.icon}</span>
+                  <div>
+                    <p className="text-sm font-bold text-[#1B3A2F]">{category.name}</p>
+                    <p className="text-xs text-[#7A8C85]">{subCats.length} sub-categories</p>
+                  </div>
                 </div>
-              </div>
-              <span className="text-[#7A8C85] text-lg">{expandedCategory === category.id ? '▲' : '▼'}</span>
-            </button>
+                <span className="text-[#7A8C85] text-lg">{isCatExpanded ? '▲' : '▼'}</span>
+              </button>
 
-            {expandedCategory === category.id && (
-              <div className="border-t border-[#F0EDE8] divide-y divide-[#F7F4EF]">
-                {category.items.map(item => {
-                  const sel = getSelector(item.id, item)
-                  const inCart = cart.filter(c => c.itemId === item.id)
-                  const isExpanded = expandedItem === item.id
-
-                  return (
-                    <div key={item.id} className="px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#1B3A2F]">{item.name}</p>
-                          <p className="text-xs text-[#7A8C85]">
-                            {item.type === 'packet_and_loose' ? '📦 Packet + Khula dono' : '📦 Packet mein'}
-                          </p>
-                          {inCart.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {inCart.map((c, i) => (
-                                <span key={i} className="text-[10px] bg-[#EAF5EE] text-[#1B6B3A] px-2 py-0.5 rounded-full font-medium">
-                                  {c.brand !== 'Local' ? c.brand + ' ' : ''}{c.packType === 'loose' ? c.quantity : `x${c.quantity}`} ✓
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+              {isCatExpanded && (
+                <div className="border-t border-[#F0EDE8] divide-y divide-[#F7F4EF]">
+                  {subCats.map(subCat => {
+                    const isSubExpanded = expandedSubCategory === subCat.id
+                    const subCatItems = getItemsBySubCategory(subCat.id)
+                    
+                    return (
+                      <div key={subCat.id}>
                         <button
-                          onClick={() => setExpandedItem(isExpanded ? null : item.id)}
-                          className={`ml-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0 ${
-                            isExpanded
-                              ? 'bg-[#F0EDE8] text-[#5A7A6A]'
-                              : 'bg-[#2D6A4F] text-white'
-                          }`}
+                          onClick={() => setExpandedSubCategory(isSubExpanded ? null : subCat.id)}
+                          className="w-full flex items-center justify-between px-4 py-3 text-left bg-[#FAFAF8]"
                         >
-                          {isExpanded ? 'Band Karo' : inCart.length > 0 ? '+ Aur Daalo' : 'Chunein'}
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{subCat.icon || '📁'}</span>
+                            <p className="text-sm font-medium text-[#1B3A2F]">{subCat.name}</p>
+                            <span className="text-[10px] text-[#7A8C85]">({subCatItems.length})</span>
+                          </div>
+                          <span className="text-[#7A8C85] text-sm">{isSubExpanded ? '▲' : '▼'}</span>
                         </button>
-                      </div>
+                        
+                        {isSubExpanded && (
+                          <div className="divide-y divide-[#F7F4EF] bg-white">
+                            {subCatItems.map(item => {
+                              const isItemExpanded = expandedItem === item.id
+                              const inCart = cart.filter(c => c.itemId === item.id)
+                              
+                              return (
+                                <div key={item.id} className="px-4 py-3">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                      {item.imageUrl && (
+                                        <img src={item.imageUrl} alt={item.name} className="w-12 h-12 rounded-lg object-cover bg-[#F7F4EF]" />
+                                      )}
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold text-[#1B3A2F]">{item.name}</p>
+                                        <p className="text-[10px] text-[#7A8C85] truncate">{item.nameHindi}</p>
+                                        {inCart.length > 0 && (
+                                          <div className="flex flex-wrap gap-1 mt-1">
+                                            {inCart.map((c, i) => (
+                                              <span key={i} className="text-[9px] bg-[#EAF5EE] text-[#1B6B3A] px-1.5 py-0.5 rounded-full">
+                                                {c.brand !== 'Local' ? c.brand + ' ' : ''}{c.quantity}{c.unitLabel} ✓
+                                              </span>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => setExpandedItem(isItemExpanded ? null : item.id)}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0 ${
+                                        isItemExpanded ? 'bg-[#F0EDE8] text-[#5A7A6A]' : 'bg-[#2D6A4F] text-white'
+                                      }`}
+                                    >
+                                      {isItemExpanded ? 'Band Karo' : inCart.length > 0 ? '+ Aur' : 'Chunein'}
+                                    </button>
+                                  </div>
 
-                      {/* Item Selector */}
-                      {isExpanded && (
-                        <div className="mt-3 bg-[#F7F4EF] rounded-xl p-3 space-y-3">
+                                  {/* Item Selector */}
+                                  {isItemExpanded && (
+                                    <div className="mt-3 bg-[#F7F4EF] rounded-xl p-3 space-y-3">
+                                      
+                                      {/* Brand Selection */}
+                                      {item.brands && item.brands.length > 0 && (
+                                        <div>
+                                          <p className="text-xs font-bold text-[#3D5A50] mb-1.5">Brand Chunein:</p>
+                                          <div className="flex flex-wrap gap-1.5">
+                                            {item.brands.map(brand => (
+                                              <button
+                                                key={brand}
+                                                onClick={() => setSelectedBrand(prev => ({ ...prev, [item.id]: brand }))}
+                                                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                                  (selectedBrand[item.id] || item.brands[0]) === brand
+                                                    ? 'bg-[#2D6A4F] text-white'
+                                                    : 'bg-white text-[#3D5A50] border border-[#DDD9D0]'
+                                                }`}
+                                              >
+                                                {brand}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
 
-                          {/* Brand Selection */}
-                          <div>
-                            <p className="text-xs font-bold text-[#3D5A50] mb-1.5">Brand Chunein:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {item.brands.map(brand => (
-                                <button
-                                  key={brand}
-                                  onClick={() => updateSelector(item.id, { brand })}
-                                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                                    sel.brand === brand
-                                      ? 'bg-[#2D6A4F] text-white'
-                                      : 'bg-white text-[#3D5A50] border border-[#DDD9D0]'
-                                  }`}
-                                >
-                                  {brand}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                                      {/* Unit Selection */}
+                                      {item.units && item.units.length > 0 && (
+                                        <div>
+                                          <p className="text-xs font-bold text-[#3D5A50] mb-1.5">Unit Chunein:</p>
+                                          <div className="flex flex-wrap gap-1.5">
+                                            {item.units.map(unit => {
+                                              let label = ''
+                                              if (unit === 'grams') label = '⚖️ Grams'
+                                              else if (unit === 'kg') label = '🏋️ KG'
+                                              else if (unit === 'packet') label = '📦 Packet'
+                                              else label = '🔢 Piece'
+                                              
+                                              return (
+                                                <button
+                                                  key={unit}
+                                                  onClick={() => setSelectedUnit(prev => ({ ...prev, [item.id]: unit }))}
+                                                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                                    (selectedUnit[item.id] || item.units[0]) === unit
+                                                      ? 'bg-[#2D6A4F] text-white'
+                                                      : 'bg-white text-[#3D5A50] border border-[#DDD9D0]'
+                                                  }`}
+                                                >
+                                                  {label}
+                                                </button>
+                                              )
+                                            })}
+                                          </div>
+                                        </div>
+                                      )}
 
-                          {/* Packet / Loose toggle */}
-                          {item.type === 'packet_and_loose' && (
-                            <div>
-                              <p className="text-xs font-bold text-[#3D5A50] mb-1.5">Kaise chahiye:</p>
-                              <div className="flex gap-2">
-                                {(['packet', 'loose'] as const).map(pt => (
-                                  <button
-                                    key={pt}
-                                    onClick={() => updateSelector(item.id, {
-                                      packType: pt,
-                                      quantity: pt === 'packet' ? '1' : '500g',
-                                    })}
-                                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                                      sel.packType === pt
-                                        ? 'bg-[#2D6A4F] text-white'
-                                        : 'bg-white text-[#3D5A50] border border-[#DDD9D0]'
-                                    }`}
-                                  >
-                                    {pt === 'packet' ? '📦 Packet' : '⚖️ Khula (Loose)'}
-                                  </button>
-                                ))}
+                                      {/* Quantity - Manual Input */}
+                                      <div>
+                                        <p className="text-xs font-bold text-[#3D5A50] mb-1.5">
+                                          Quantity:
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                          <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0.1"
+                                            value={selectedQuantity[item.id] || '1'}
+                                            onChange={e => setSelectedQuantity(prev => ({ ...prev, [item.id]: e.target.value }))}
+                                            className="flex-1 px-3 py-2 bg-white border border-[#DDD9D0] rounded-lg text-sm text-[#1B3A2F] outline-none focus:border-[#2D6A4F]"
+                                            placeholder="Kitna?"
+                                          />
+                                          <span className="text-xs text-[#7A8C85]">
+                                            {(selectedUnit[item.id] || item.units?.[0] || 'kg') === 'grams' ? 'g' :
+                                             (selectedUnit[item.id] || item.units?.[0] || 'kg') === 'kg' ? 'kg' :
+                                             (selectedUnit[item.id] || item.units?.[0] || 'kg') === 'packet' ? 'packets' : 'pieces'}
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      <button
+                                        onClick={() => addToCart(item)}
+                                        className="w-full py-2.5 bg-[#2D6A4F] text-white rounded-xl text-sm font-bold"
+                                      >
+                                        ✓ Cart Mein Daalo
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                            {subCatItems.length === 0 && (
+                              <div className="px-4 py-6 text-center text-xs text-[#7A8C85]">
+                                Is sub-category mein koi item nahi hai.
                               </div>
-                            </div>
-                          )}
-
-                          {/* Quantity */}
-                          <div>
-                            <p className="text-xs font-bold text-[#3D5A50] mb-1.5">
-                              {sel.packType === 'loose' ? 'Kitna (Weight):' : 'Kitne Packet:'}
-                            </p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {(sel.packType === 'loose' ? LOOSE_QUANTITIES : PACKET_QUANTITIES).map(q => (
-                                <button
-                                  key={q}
-                                  onClick={() => updateSelector(item.id, { quantity: String(q) })}
-                                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                                    sel.quantity === String(q)
-                                      ? 'bg-[#2D6A4F] text-white'
-                                      : 'bg-white text-[#3D5A50] border border-[#DDD9D0]'
-                                  }`}
-                                >
-                                  {sel.packType === 'packet' ? `${q} Pkt` : q}
-                                </button>
-                              ))}
-                            </div>
+                            )}
                           </div>
-
-                          {/* Add to cart */}
-                          <button
-                            onClick={() => addToCart(item)}
-                            className="w-full py-2.5 bg-[#2D6A4F] text-white rounded-xl text-sm font-bold"
-                          >
-                            ✓ Cart Mein Daalo
-                          </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                    )
+                  })}
+                  {subCats.length === 0 && (
+                    <div className="px-4 py-6 text-center text-xs text-[#7A8C85]">
+                      Is category mein koi sub-category nahi hai.
                     </div>
-                  )
-                })}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+
+        {categories.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-sm text-[#7A8C85]">Koi category available nahi hai.</p>
           </div>
-        ))}
+        )}
 
         {/* Cart Review */}
-        {totalItems > 0 && (
+        {cart.length > 0 && (
           <div className="bg-white rounded-xl border border-[#E0DDD6] mb-4 overflow-hidden">
             <div className="px-4 py-3 bg-[#F0FAF4] border-b border-[#E0DDD6]">
-              <p className="text-sm font-bold text-[#1B3A2F]">🛒 Aapka Cart ({totalItems} items)</p>
+              <p className="text-sm font-bold text-[#1B3A2F]">🛒 Aapka Cart</p>
             </div>
             <div className="divide-y divide-[#F7F4EF]">
               {cart.map((item, i) => (
@@ -414,7 +515,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
                       {item.brand !== 'Local' ? item.brand + ' ' : ''}{item.itemName}
                     </p>
                     <p className="text-xs text-[#7A8C85]">
-                      {item.packType === 'loose' ? item.quantity : `${item.quantity} Packet`}
+                      {item.quantity} {item.unitLabel}{item.unit === 'packet' || item.unit === 'piece' ? (parseFloat(item.quantity) > 1 ? 's' : '') : ''}
                     </p>
                   </div>
                   <button onClick={() => removeFromCart(i)} className="text-[#D85A30] text-xs font-bold ml-2 px-2 py-1 rounded-lg hover:bg-[#FEF0ED]">
@@ -427,7 +528,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
         )}
 
         {/* Delivery Option */}
-        {totalItems > 0 && (
+        {cart.length > 0 && (
           <div className="bg-white rounded-xl border border-[#E0DDD6] mb-4 px-4 py-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -448,7 +549,7 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
         )}
 
         {/* Customer Details */}
-        {totalItems > 0 && (
+        {cart.length > 0 && (
           <div className="bg-white rounded-xl border border-[#E0DDD6] mb-4 overflow-hidden">
             <div className="px-4 py-3 bg-[#F7F4EF] border-b border-[#E0DDD6]">
               <p className="text-sm font-bold text-[#1B3A2F]">👤 Aapki Details</p>
@@ -460,44 +561,23 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
                 </div>
               )}
               <div>
-                <label className="block text-xs font-medium text-[#3D5A50] mb-1">
-                  Aapka Naam <span className="text-[#D85A30]">*</span>
-                </label>
-                <input
-                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors"
-                  placeholder=""
-                  value={customerName}
-                  onChange={e => setCustomerName(e.target.value)}
-                />
+                <label className="block text-xs font-medium text-[#3D5A50] mb-1">Aapka Naam <span className="text-[#D85A30]">*</span></label>
+                <input className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F]" value={customerName} onChange={e => setCustomerName(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#3D5A50] mb-1">
-                  Mobile Number <span className="text-[#D85A30]">*</span>
-                </label>
-                <input
-                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors"
-                  type="tel" maxLength={10} placeholder=""
-                  value={customerMobile}
-                  onChange={e => setCustomerMobile(e.target.value)}
-                />
+                <label className="block text-xs font-medium text-[#3D5A50] mb-1">Mobile Number <span className="text-[#D85A30]">*</span></label>
+                <input type="tel" maxLength={10} className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F]" value={customerMobile} onChange={e => setCustomerMobile(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#3D5A50] mb-1">
-                  Ghar Ka Pata <span className="text-[#D85A30]">*</span>
-                </label>
-                <textarea
-                  className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] focus:bg-white transition-colors h-16 resize-none"
-                  placeholder=""
-                  value={customerAddress}
-                  onChange={e => setCustomerAddress(e.target.value)}
-                />
+                <label className="block text-xs font-medium text-[#3D5A50] mb-1">Ghar Ka Pata <span className="text-[#D85A30]">*</span></label>
+                <textarea rows={2} className="w-full px-3.5 py-2.5 border-[1.5px] border-[#DDD9D0] rounded-xl text-sm text-[#1B3A2F] bg-[#FAFAF8] outline-none focus:border-[#2D6A4F] resize-none" value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} />
               </div>
             </div>
           </div>
         )}
 
         {/* Order Summary + Confirm Button */}
-        {totalItems > 0 && (
+        {cart.length > 0 && (
           <div className="bg-white rounded-xl border border-[#E0DDD6] overflow-hidden mb-4">
             <div className="px-4 py-3 space-y-1.5">
               <div className="flex justify-between text-sm">
@@ -516,17 +596,14 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
               </div>
             </div>
             <div className="px-4 pb-4">
-              <button
-                onClick={handleConfirmOrder}
-                className="w-full py-4 bg-[#2D6A4F] hover:bg-[#245A42] active:scale-[0.99] text-white rounded-xl font-bold text-base transition-all shadow-md"
-              >
+              <button onClick={handleConfirmOrder} className="w-full py-4 bg-[#2D6A4F] text-white rounded-xl font-bold text-base">
                 ✅ Order Confirm Karein
               </button>
             </div>
           </div>
         )}
 
-        {totalItems === 0 && (
+        {cart.length === 0 && (
           <div className="text-center py-8">
             <p className="text-3xl mb-2">👆</p>
             <p className="text-sm text-[#7A8C85]">Upar se apni zaroorat ki cheezein chunein</p>
@@ -541,28 +618,16 @@ export default function ShopPage({ params }: { params: Promise<{ slug: string }>
             <div className="text-center mb-4">
               <div className="text-3xl mb-2">🛒</div>
               <h3 className="text-lg font-bold text-[#1B3A2F]">Order Confirm Karein?</h3>
-              <p className="text-sm text-[#5A7A6A] mt-1">Kya aap ye order pakka karna chahte hain?</p>
             </div>
-
             <div className="bg-[#F7F4EF] rounded-xl p-3 mb-4 text-sm space-y-1">
               <p><span className="text-[#7A8C85]">Naam:</span> <strong className="text-[#1B3A2F]">{customerName}</strong></p>
               <p><span className="text-[#7A8C85]">Mobile:</span> <strong className="text-[#1B3A2F]">{customerMobile}</strong></p>
-              <p><span className="text-[#7A8C85]">Items:</span> <strong className="text-[#1B3A2F]">{totalItems} items</strong></p>
+              <p><span className="text-[#7A8C85]">Items:</span> <strong className="text-[#1B3A2F]">{totalItems}</strong></p>
               {homeDelivery && <p><span className="text-[#7A8C85]">Delivery:</span> <strong className="text-[#1B3A2F]">Haan (+₹30)</strong></p>}
             </div>
-
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="flex-1 py-3 border border-[#DDD9D0] text-[#5A7A6A] rounded-xl font-semibold text-sm"
-              >
-                Wapas Jaao
-              </button>
-              <button
-                onClick={handleFinalOrder}
-                disabled={submitting}
-                className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-xl font-bold text-sm disabled:opacity-60"
-              >
+              <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-3 border border-[#DDD9D0] text-[#5A7A6A] rounded-xl font-semibold text-sm">Wapas Jaao</button>
+              <button onClick={handleFinalOrder} disabled={submitting} className="flex-1 py-3 bg-[#2D6A4F] text-white rounded-xl font-bold text-sm disabled:opacity-60">
                 {submitting ? 'Ho raha hai...' : '✅ Haan, Confirm Karo!'}
               </button>
             </div>
