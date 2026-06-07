@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
   const subCategories = await prisma.subCategory.findMany({
     where: categoryId ? { categoryId } : {},
     orderBy: { sortOrder: 'asc' },
-    include: { 
+    include: {
       category: { select: { name: true } },
-      _count: { select: { items: true } } 
+      _count: { select: { items: true } },
     },
   })
   return NextResponse.json({ subCategories })
@@ -22,17 +22,19 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!await getAdminSession(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   
-  const { name, nameHindi, icon, categoryId } = await req.json()
+  const { name, nameHindi, categoryId, icon } = await req.json()
   
-  if (!name || !categoryId) return NextResponse.json({ error: 'Fields missing' }, { status: 400 })
-  
+  if (!name || !categoryId) {
+    return NextResponse.json({ error: 'Name and categoryId required' }, { status: 400 })
+  }
+
   const subCategory = await prisma.subCategory.create({
-    data: { 
-      name, 
-      nameHindi: nameHindi || name, 
+    data: {
+      name,
+      nameHindi: nameHindi || name,
+      categoryId,
       icon: icon || null,
-      categoryId, 
-      sortOrder: 0 
+      sortOrder: 0,
     },
   })
   return NextResponse.json({ subCategory })
