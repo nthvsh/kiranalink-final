@@ -3,29 +3,54 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // Seedha SQL se fetch karo — Prisma relations ke bina
+    // Step 1: Categories fetch karo with ::text cast
     const categories = await prisma.$queryRaw`
-      SELECT id, name, "nameHindi", icon, "sortOrder", "isActive" 
+      SELECT 
+        id::text, 
+        name, 
+        "nameHindi", 
+        icon, 
+        "sortOrder", 
+        "isActive" 
       FROM "Category" 
       WHERE "isActive" = true 
       ORDER BY "sortOrder" ASC
     `
 
+    // Step 2: SubCategories fetch karo with ::text cast
     const subCategories = await prisma.$queryRaw`
-      SELECT id, "categoryId", name, "nameHindi", icon, "sortOrder", "isActive"
+      SELECT 
+        id::text, 
+        "categoryId"::text, 
+        name, 
+        "nameHindi", 
+        icon, 
+        "sortOrder", 
+        "isActive"
       FROM "SubCategory"
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
     `
 
+    // Step 3: Items fetch karo with ::text cast
     const items = await prisma.$queryRaw`
-      SELECT id, "categoryId", "subCategoryId", name, "nameHindi", "imageUrl", units, brands, "sortOrder", "isActive"
+      SELECT 
+        id::text, 
+        "categoryId"::text, 
+        "subCategoryId"::text, 
+        name, 
+        "nameHindi", 
+        "imageUrl", 
+        units, 
+        brands, 
+        "sortOrder", 
+        "isActive"
       FROM "Item"
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
     `
 
-    // Manually nest
+    // Step 4: Manually nest data
     const formatted = (categories as any[]).map((cat: any) => ({
       id: cat.id,
       name: cat.name,
@@ -52,10 +77,11 @@ export async function GET() {
     }))
 
     return NextResponse.json({ categories: formatted })
+    
   } catch (error) {
     console.error('Error fetching categories:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch categories', categories: [] },
+      { error: 'Failed to fetch categories', details: String(error) },
       { status: 500 }
     )
   }
