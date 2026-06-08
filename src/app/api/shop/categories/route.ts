@@ -3,8 +3,8 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // Step 1: Categories fetch karo with ::text cast
-    const categories = await prisma.$queryRawUnsafe`
+    // Categories query as STRING
+    const categories = await prisma.$queryRawUnsafe(`
       SELECT 
         id::text, 
         name, 
@@ -15,10 +15,10 @@ export async function GET() {
       FROM "Category" 
       WHERE "isActive" = true 
       ORDER BY "sortOrder" ASC
-    `
+    `)
 
-    // Step 2: SubCategories fetch karo with ::text cast
-    const subCategories = await prisma.$queryRawUnsafe`
+    // SubCategories query as STRING
+    const subCategories = await prisma.$queryRawUnsafe(`
       SELECT 
         id::text, 
         "categoryId"::text, 
@@ -30,10 +30,10 @@ export async function GET() {
       FROM "SubCategory"
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
-    `
+    `)
 
-    // Step 3: Items fetch karo with ::text cast
-    const items = await prisma.$queryRawUnsafe`
+    // Items query as STRING
+    const items = await prisma.$queryRawUnsafe(`
       SELECT 
         id::text, 
         "categoryId"::text, 
@@ -48,9 +48,9 @@ export async function GET() {
       FROM "Item"
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
-    `
+    `)
 
-    // Step 4: Manually nest data
+    // Format data
     const formatted = (categories as any[]).map((cat: any) => ({
       id: cat.id,
       name: cat.name,
