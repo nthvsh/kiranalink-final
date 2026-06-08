@@ -1,85 +1,52 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // Table names with double quotes (exact case)
-    const categories = await prisma.$queryRaw`
-      SELECT 
-        id::text, 
-        name, 
-        "nameHindi", 
-        icon, 
-        "sortOrder", 
-        "isActive" 
-      FROM "Category"
-      WHERE "isActive" = true 
-      ORDER BY "sortOrder" ASC
-    `
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Supabase config missing' }, { status: 500 })
+    }
 
-    const subCategories = await prisma.$queryRaw`
-      SELECT 
-        id::text, 
-        "categoryId"::text, 
-        name, 
-        "nameHindi", 
-        icon, 
-        "sortOrder", 
-        "isActive"
-      FROM "SubCategory"
-      WHERE "isActive" = true
-      ORDER BY "sortOrder" ASC
-    `
+    // Fetch all data in parallel
+    const [categoriesRes, subCategoriesRes, itemsRes] = await Promise.all([
+      fetch(`${supabaseUrl}/rest/v1/Category?select=*&isActive=eq.true&order=sortOrder.asc`, {
+        headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+      }),
+      fetch(`${supabaseUrl}/rest/v1/SubCategory?select=*&isActive=eq.true&order=sortOrder.asc`, {
+        headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+      }),
+      fetch(`${supabaseUrl}/rest/v1/Item?select=*&isActive=eq.true&order=sortOrder.asc`, {
+        headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+      })
+    ])
 
-    const items = await prisma.$queryRaw`
-      SELECT 
-        id::text, 
-        "categoryId"::text, 
-        "subCategoryId"::text, 
-        name, 
-        "nameHindi", 
-        "imageUrl", 
-        units, 
-        brands, 
-        "sortOrder", 
-        "isActive"
-      FROM "Item"
-      WHERE "isActive" = true
-      ORDER BY "sortOrder" ASC
-    `
+    const categories = await categoriesRes.json()
+    const subCategories = await subCategoriesRes.json()
+    const items = await itemsRes.json()
 
-    const formatted = (categories as any[]).map((cat: any) => ({
+    // Format nested data
+    const formatted = categories.map((cat: any) => ({
       id: cat.id,
       name: cat.name,
       nameHindi: cat.nameHindi,
       icon: cat.icon,
-      subCategories: (subCategories as any[])
+      subCategories: subCategories
         .filter((sub: any) => sub.categoryId === cat.id)
         .map((sub: any) => ({
           id: sub.id,
           name: sub.name,
           nameHindi: sub.nameHindi,
           icon: sub.icon,
-          items: (items as any[])
-            .filter((item: any) => item.subCategoryId === sub.id)
-            .map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              nameHindi: item.nameHindi,
-              imageUrl: item.imageUrl,
-              units: item.units,
-              brands: item.brands,
-            }))
+          items: items.filter((item: any) => item.subCategoryId === sub.id)
         }))
     }))
 
     return NextResponse.json({ categories: formatted })
     
   } catch (error) {
-    console.error('Error fetching categories:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch categories', details: String(error) },
-      { status: 500 }
-    )
+    console.error('Error:', error)
+    return NextResponse.json({ error: 'Failed', details: String(error) }, { status: 500 })
   }
 }
