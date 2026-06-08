@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // WITHOUT double quotes in FROM clause
+    // Table names with double quotes (exact case)
     const categories = await prisma.$queryRaw`
       SELECT 
         id::text, 
@@ -12,7 +12,7 @@ export async function GET() {
         icon, 
         "sortOrder", 
         "isActive" 
-      FROM Category
+      FROM "Category"
       WHERE "isActive" = true 
       ORDER BY "sortOrder" ASC
     `
@@ -26,7 +26,7 @@ export async function GET() {
         icon, 
         "sortOrder", 
         "isActive"
-      FROM SubCategory
+      FROM "SubCategory"
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
     `
@@ -43,12 +43,11 @@ export async function GET() {
         brands, 
         "sortOrder", 
         "isActive"
-      FROM Item
+      FROM "Item"
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
     `
 
-    // Format data
     const formatted = (categories as any[]).map((cat: any) => ({
       id: cat.id,
       name: cat.name,
