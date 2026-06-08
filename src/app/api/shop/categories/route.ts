@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     // Step 1: Categories fetch karo with ::text cast
-    const categories = await prisma.$queryRaw`
+    const categories = await prisma.$queryRawUnsafe`
       SELECT 
         id::text, 
         name, 
@@ -18,7 +18,7 @@ export async function GET() {
     `
 
     // Step 2: SubCategories fetch karo with ::text cast
-    const subCategories = await prisma.$queryRaw`
+    const subCategories = await prisma.$queryRawUnsafe`
       SELECT 
         id::text, 
         "categoryId"::text, 
@@ -33,7 +33,7 @@ export async function GET() {
     `
 
     // Step 3: Items fetch karo with ::text cast
-    const items = await prisma.$queryRaw`
+    const items = await prisma.$queryRawUnsafe`
       SELECT 
         id::text, 
         "categoryId"::text, 
