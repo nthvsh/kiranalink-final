@@ -3,8 +3,8 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // Categories query as STRING
-    const categories = await prisma.$queryRawUnsafe(`
+    // WITHOUT double quotes in FROM clause
+    const categories = await prisma.$queryRaw`
       SELECT 
         id::text, 
         name, 
@@ -12,13 +12,12 @@ export async function GET() {
         icon, 
         "sortOrder", 
         "isActive" 
-      FROM "Category" 
+      FROM Category
       WHERE "isActive" = true 
       ORDER BY "sortOrder" ASC
-    `)
+    `
 
-    // SubCategories query as STRING
-    const subCategories = await prisma.$queryRawUnsafe(`
+    const subCategories = await prisma.$queryRaw`
       SELECT 
         id::text, 
         "categoryId"::text, 
@@ -27,13 +26,12 @@ export async function GET() {
         icon, 
         "sortOrder", 
         "isActive"
-      FROM "SubCategory"
+      FROM SubCategory
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
-    `)
+    `
 
-    // Items query as STRING
-    const items = await prisma.$queryRawUnsafe(`
+    const items = await prisma.$queryRaw`
       SELECT 
         id::text, 
         "categoryId"::text, 
@@ -45,10 +43,10 @@ export async function GET() {
         brands, 
         "sortOrder", 
         "isActive"
-      FROM "Item"
+      FROM Item
       WHERE "isActive" = true
       ORDER BY "sortOrder" ASC
-    `)
+    `
 
     // Format data
     const formatted = (categories as any[]).map((cat: any) => ({
