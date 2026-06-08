@@ -3,52 +3,52 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-      include: {
-        subCategories: {
-          where: { isActive: true },
-          orderBy: { sortOrder: 'asc' },
-          include: {
-            items: {
-              where: { isActive: true },
-              orderBy: { sortOrder: 'asc' },
-              select: {
-                id: true,
-                name: true,
-                nameHindi: true,
-                imageUrl: true,
-                units: true,
-                brands: true,
-                subCategoryId: true,
-              }
-            }
-          }
-        }
-      }
-    })
+    // Seedha SQL se fetch karo — Prisma relations ke bina
+    const categories = await prisma.$queryRaw`
+      SELECT id, name, "nameHindi", icon, "sortOrder", "isActive" 
+      FROM "Category" 
+      WHERE "isActive" = true 
+      ORDER BY "sortOrder" ASC
+    `
 
-    // Flatten for frontend — nested structure mein bhejo
-    const formatted = categories.map(cat => ({
+    const subCategories = await prisma.$queryRaw`
+      SELECT id, "categoryId", name, "nameHindi", icon, "sortOrder", "isActive"
+      FROM "SubCategory"
+      WHERE "isActive" = true
+      ORDER BY "sortOrder" ASC
+    `
+
+    const items = await prisma.$queryRaw`
+      SELECT id, "categoryId", "subCategoryId", name, "nameHindi", "imageUrl", units, brands, "sortOrder", "isActive"
+      FROM "Item"
+      WHERE "isActive" = true
+      ORDER BY "sortOrder" ASC
+    `
+
+    // Manually nest
+    const formatted = (categories as any[]).map((cat: any) => ({
       id: cat.id,
       name: cat.name,
       nameHindi: cat.nameHindi,
       icon: cat.icon,
-      subCategories: cat.subCategories.map(sub => ({
-        id: sub.id,
-        name: sub.name,
-        nameHindi: sub.nameHindi,
-        icon: sub.icon,
-        items: sub.items.map(item => ({
-          id: item.id,
-          name: item.name,
-          nameHindi: item.nameHindi,
-          imageUrl: item.imageUrl,
-          units: item.units,
-          brands: item.brands,
+      subCategories: (subCategories as any[])
+        .filter((sub: any) => sub.categoryId === cat.id)
+        .map((sub: any) => ({
+          id: sub.id,
+          name: sub.name,
+          nameHindi: sub.nameHindi,
+          icon: sub.icon,
+          items: (items as any[])
+            .filter((item: any) => item.subCategoryId === sub.id)
+            .map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              nameHindi: item.nameHindi,
+              imageUrl: item.imageUrl,
+              units: item.units,
+              brands: item.brands,
+            }))
         }))
-      }))
     }))
 
     return NextResponse.json({ categories: formatted })
