@@ -22,10 +22,16 @@ interface Category {
   id: string; name: string; nameHindi: string; icon: string
   isActive: boolean; _count: { items: number }
 }
+interface SubCategory {
+  id: string; name: string; nameHindi: string; icon?: string
+  isActive: boolean; categoryId: string
+}
 interface Item {
-  id: string; name: string; nameHindi: string; type: string
-  brands: string[]; isActive: boolean; category: { name: string }
-  categoryId: string
+  id: string; name: string; nameHindi: string
+  units: string[]; brands: string[]; imageUrl?: string
+  isActive: boolean; category: { name: string }
+  subCategory: { name: string }
+  categoryId: string; subCategoryId: string
 }
 
 type Section = 'dashboard' | 'shops' | 'payments' | 'orders' | 'items'
@@ -39,6 +45,13 @@ const statusBadge = (status: string, daysLeft: number) => {
 
 const fmt = (d: string) => new Date(d).toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' })
 
+const UNIT_OPTIONS = [
+  { value: 'grams', label: '⚖️ Grams' },
+  { value: 'kg', label: '🏋️ KG' },
+  { value: 'packet', label: '📦 Packet' },
+  { value: 'piece', label: '🔢 Piece' },
+]
+
 // ─── Main Component ───────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter()
@@ -47,16 +60,24 @@ export default function AdminDashboard() {
   const [shops, setShops] = useState<Shop[]>([])
   const [orders, setOrders] = useState<Order[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([])
+  const [filteredSubCats, setFilteredSubCats] = useState<SubCategory[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(false)
   const [shopSearch, setShopSearch] = useState('')
   const [shopStatus, setShopStatus] = useState('all')
   const [selCategory, setSelCategory] = useState('')
+  const [selSubCategory, setSelSubCategory] = useState('')
   const [showItemModal, setShowItemModal] = useState(false)
   const [showCatModal, setShowCatModal] = useState(false)
+  const [showSubCatModal, setShowSubCatModal] = useState(false)
   const [editItem, setEditItem] = useState<Item | null>(null)
-  const [newItem, setNewItem] = useState({ name: '', nameHindi: '', categoryId: '', type: 'packet_only', brands: '' })
+  const [newItem, setNewItem] = useState({
+    name: '', nameHindi: '', categoryId: '', subCategoryId: '',
+    units: [] as string[], brands: '', imageUrl: ''
+  })
   const [newCat, setNewCat] = useState({ name: '', nameHindi: '', icon: '' })
+  const [newSubCat, setNewSubCat] = useState({ name: '', nameHindi: '', icon: '', categoryId: '' })
   const [msg, setMsg] = useState('')
 
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
@@ -75,15 +96,31 @@ export default function AdminDashboard() {
         const r = await fetch('/api/admin/orders'); const d = await r.json()
         if (!d.error) setOrders(d.orders)
       } else if (s === 'items') {
-        const [cr, ir] = await Promise.all([fetch('/api/admin/categories'), fetch(`/api/admin/items${selCategory ? `?categoryId=${selCategory}` : ''}`)])
-        const [cd, id] = await Promise.all([cr.json(), ir.json()])
+        const [cr, sr, ir] = await Promise.all([
+          fetch('/api/admin/categories'),
+          fetch('/api/admin/subcategories'),
+          fetch(`/api/admin/items${selSubCategory ? `?subCategoryId=${selSubCategory}` : selCategory ? `?categoryId=${selCategory}` : ''}`)
+        ])
+        const [cd, sd, id] = await Promise.all([cr.json(), sr.json(), ir.json()])
         if (!cd.error) setCategories(cd.categories)
+        if (!sd.error) setSubCategories(sd.subCategories)
         if (!id.error) setItems(id.items)
       }
     } finally { setLoading(false) }
-  }, [shopSearch, shopStatus, selCategory, router])
+  }, [shopSearch, shopStatus, selCategory, selSubCategory, router])
 
   useEffect(() => { load(section) }, [section, load])
+
+  // Filter subcategories when category changes
+  useEffect(() => {
+    if (selCategory) {
+      setFilteredSubCats(subCategories.filter(s => s.categoryId === selCategory))
+      setSelSubCategory('')
+    } else {
+      setFilteredSubCats([])
+      setSelSubCategory('')
+    }
+  }, [selCategory, subCategories])
 
   const toggleShop = async (shopId: string, isActive: boolean) => {
     await fetch('/api/admin/shops', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shopId, isActive }) })
@@ -93,25 +130,39 @@ export default function AdminDashboard() {
 
   const deleteShop = async (shopId: string, shopName: string) => {
     if (!confirm(`⚠️ "${shopName}" delete karein? Ye action undo nahi ho sakta!`)) return
-    await fetch('/api/admin/delete-shop', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ shopId }) 
+    await fetch('/api/admin/delete-shop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shopId })
     })
     flash('🗑️ Shop delete ho gayi')
     load('shops')
+  }
+
+  const toggleUnit = (unit: string) => {
+    setNewItem(p => ({
+      ...p,
+      units: p.units.includes(unit) ? p.units.filter(u => u !== unit) : [...p.units, unit]
+    }))
   }
 
   const saveItem = async () => {
     const brandsArr = newItem.brands.split(',').map(b => b.trim()).filter(Boolean)
     const method = editItem ? 'PATCH' : 'POST'
     const body = editItem
-      ? { id: editItem.id, name: newItem.name, nameHindi: newItem.nameHindi, type: newItem.type, brands: brandsArr }
-      : { ...newItem, brands: brandsArr }
+      ? {
+          id: editItem.id, name: newItem.name, nameHindi: newItem.nameHindi,
+          units: newItem.units, brands: brandsArr, imageUrl: newItem.imageUrl || null
+        }
+      : {
+          name: newItem.name, nameHindi: newItem.nameHindi,
+          categoryId: newItem.categoryId, subCategoryId: newItem.subCategoryId,
+          units: newItem.units, brands: brandsArr, imageUrl: newItem.imageUrl || null
+        }
     await fetch('/api/admin/items', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     flash(editItem ? '✅ Item update ho gayi' : '✅ Item add ho gayi')
     setShowItemModal(false); setEditItem(null)
-    setNewItem({ name: '', nameHindi: '', categoryId: '', type: 'packet_only', brands: '' })
+    setNewItem({ name: '', nameHindi: '', categoryId: '', subCategoryId: '', units: [], brands: '', imageUrl: '' })
     load('items')
   }
 
@@ -125,6 +176,12 @@ export default function AdminDashboard() {
     await fetch('/api/admin/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCat) })
     flash('✅ Category add ho gayi'); setShowCatModal(false)
     setNewCat({ name: '', nameHindi: '', icon: '' }); load('items')
+  }
+
+  const saveSubCat = async () => {
+    await fetch('/api/admin/subcategories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newSubCat) })
+    flash('✅ Sub-Category add ho gayi'); setShowSubCatModal(false)
+    setNewSubCat({ name: '', nameHindi: '', icon: '', categoryId: '' }); load('items')
   }
 
   const logout = async () => {
@@ -182,10 +239,10 @@ export default function AdminDashboard() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'Total Shops', value: stats.totalShops, icon: '🏪', color: 'blue' },
-                  { label: 'Active (Paid)', value: stats.activeShops, icon: '✅', color: 'green' },
-                  { label: 'Free Trial', value: stats.trialShops, icon: '🆓', color: 'yellow' },
-                  { label: 'Expired', value: stats.expiredShops, icon: '❌', color: 'red' },
+                  { label: 'Total Shops', value: stats.totalShops, icon: '🏪' },
+                  { label: 'Active (Paid)', value: stats.activeShops, icon: '✅' },
+                  { label: 'Free Trial', value: stats.trialShops, icon: '🆓' },
+                  { label: 'Expired', value: stats.expiredShops, icon: '❌' },
                 ].map(card => (
                   <div key={card.label} className="bg-[#161b22] border border-[#30363d] rounded-xl p-4">
                     <p className="text-2xl mb-1">{card.icon}</p>
@@ -227,15 +284,13 @@ export default function AdminDashboard() {
                 <select
                   className="px-3 py-2 bg-[#161b22] border border-[#30363d] rounded-lg text-sm text-white outline-none"
                   value={shopStatus}
-                  onChange={e => { setShopStatus(e.target.value); load('shops') }}
-                >
+                  onChange={e => { setShopStatus(e.target.value); load('shops') }}>
                   <option value="all">Sabhi</option>
                   <option value="active">Active (Paid)</option>
                   <option value="trial">Trial</option>
                   <option value="expired">Expired</option>
                 </select>
               </div>
-
               <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="border-b border-[#30363d] bg-[#21262d]">
@@ -261,13 +316,11 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-[10px] text-[#8b949e]">{fmt(shop.createdAt)}</td>
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => toggleShop(shop.id, !shop.isActive)}
+                            <button onClick={() => toggleShop(shop.id, !shop.isActive)}
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${shop.isActive ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-green-900/30 text-green-400 hover:bg-green-900/50'}`}>
                               {shop.isActive ? 'Band Karo' : 'Active Karo'}
                             </button>
-                            <button
-                              onClick={() => deleteShop(shop.id, shop.shopName)}
+                            <button onClick={() => deleteShop(shop.id, shop.shopName)}
                               className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-red-900/20 text-red-400 hover:bg-red-900/40 transition-colors">
                               🗑️ Delete
                             </button>
@@ -331,7 +384,6 @@ export default function AdminDashboard() {
                   <p className="text-xs text-[#8b949e]">📈 Total Orders</p>
                 </div>
               </div>
-
               <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="border-b border-[#30363d] bg-[#21262d]">
@@ -375,18 +427,34 @@ export default function AdminDashboard() {
                   <select
                     className="px-3 py-2 bg-[#161b22] border border-[#30363d] rounded-lg text-sm text-white outline-none"
                     value={selCategory}
-                    onChange={e => setSelCategory(e.target.value)}
-                  >
+                    onChange={e => setSelCategory(e.target.value)}>
                     <option value="">Sabhi Categories</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name} ({c._count.items})</option>)}
                   </select>
+                  {selCategory && (
+                    <select
+                      className="px-3 py-2 bg-[#161b22] border border-[#30363d] rounded-lg text-sm text-white outline-none"
+                      value={selSubCategory}
+                      onChange={e => setSelSubCategory(e.target.value)}>
+                      <option value="">Sabhi Sub-Categories</option>
+                      {filteredSubCats.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => setShowCatModal(true)}
                     className="px-3 py-2 bg-[#21262d] border border-[#30363d] text-[#c9d1d9] rounded-lg text-xs font-bold hover:border-[#1f6feb] transition-colors">
                     + Category
                   </button>
-                  <button onClick={() => { setEditItem(null); setNewItem({ name: '', nameHindi: '', categoryId: selCategory, type: 'packet_only', brands: '' }); setShowItemModal(true) }}
+                  <button onClick={() => setShowSubCatModal(true)}
+                    className="px-3 py-2 bg-[#21262d] border border-[#30363d] text-[#c9d1d9] rounded-lg text-xs font-bold hover:border-[#1f6feb] transition-colors">
+                    + Sub-Category
+                  </button>
+                  <button onClick={() => {
+                    setEditItem(null)
+                    setNewItem({ name: '', nameHindi: '', categoryId: selCategory, subCategoryId: selSubCategory, units: [], brands: '', imageUrl: '' })
+                    setShowItemModal(true)
+                  }}
                     className="px-3 py-2 bg-[#1f6feb] text-white rounded-lg text-xs font-bold hover:bg-[#388bfd] transition-colors">
                     + Item Add
                   </button>
@@ -396,8 +464,9 @@ export default function AdminDashboard() {
               {/* Categories overview */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {categories.map(cat => (
-                  <div key={cat.id} className="bg-[#161b22] border border-[#30363d] rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:border-[#1f6feb] transition-colors"
-                    onClick={() => setSelCategory(cat.id)}>
+                  <div key={cat.id}
+                    className={`bg-[#161b22] border rounded-xl p-3 flex items-center gap-2 cursor-pointer transition-colors ${selCategory === cat.id ? 'border-[#1f6feb]' : 'border-[#30363d] hover:border-[#1f6feb]'}`}
+                    onClick={() => setSelCategory(selCategory === cat.id ? '' : cat.id)}>
                     <span className="text-xl">{cat.icon}</span>
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-white truncate">{cat.name}</p>
@@ -407,12 +476,26 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
+              {/* SubCategories overview */}
+              {selCategory && filteredSubCats.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+                  {filteredSubCats.map(sub => (
+                    <div key={sub.id}
+                      className={`border rounded-lg p-2 flex items-center gap-1.5 cursor-pointer transition-colors ${selSubCategory === sub.id ? 'border-[#1f6feb] bg-[#1f6feb]/10' : 'border-[#30363d] bg-[#161b22] hover:border-[#1f6feb]'}`}
+                      onClick={() => setSelSubCategory(selSubCategory === sub.id ? '' : sub.id)}>
+                      {sub.icon && <span className="text-sm">{sub.icon}</span>}
+                      <p className="text-[10px] font-medium text-white truncate">{sub.name}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Items table */}
               <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="border-b border-[#30363d] bg-[#21262d]">
                     <tr>
-                      {['Item Naam', 'Category', 'Type', 'Brands', 'Action'].map(h => (
+                      {['Item Naam', 'Category / Sub-Cat', 'Units', 'Brands', 'Action'].map(h => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#8b949e]">{h}</th>
                       ))}
                     </tr>
@@ -421,14 +504,24 @@ export default function AdminDashboard() {
                     {items.map(item => (
                       <tr key={item.id} className="hover:bg-[#21262d] transition-colors">
                         <td className="px-4 py-3">
-                          <p className="text-xs font-medium text-white">{item.name}</p>
-                          <p className="text-[10px] text-[#8b949e]">{item.nameHindi}</p>
+                          <div className="flex items-center gap-2">
+                            {item.imageUrl && <img src={item.imageUrl} alt={item.name} className="w-8 h-8 rounded object-cover" />}
+                            <div>
+                              <p className="text-xs font-medium text-white">{item.name}</p>
+                              <p className="text-[10px] text-[#8b949e]">{item.nameHindi}</p>
+                            </div>
+                          </div>
                         </td>
-                        <td className="px-4 py-3 text-xs text-[#c9d1d9]">{item.category.name}</td>
                         <td className="px-4 py-3">
-                          {item.type === 'packet_only'
-                            ? <span className="text-[10px] bg-purple-900/30 text-purple-400 px-2 py-0.5 rounded-full font-bold">📦 Packet</span>
-                            : <span className="text-[10px] bg-orange-900/30 text-orange-400 px-2 py-0.5 rounded-full font-bold">⚖️ Packet+Loose</span>}
+                          <p className="text-xs text-[#c9d1d9]">{item.category.name}</p>
+                          <p className="text-[10px] text-[#8b949e]">{item.subCategory.name}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 flex-wrap">
+                            {(item.units as string[]).map(u => (
+                              <span key={u} className="text-[9px] bg-[#21262d] text-[#8b949e] px-1.5 py-0.5 rounded font-medium uppercase">{u}</span>
+                            ))}
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-[10px] text-[#8b949e] max-w-32 truncate">
                           {(item.brands as string[]).slice(0, 3).join(', ')}
@@ -438,10 +531,17 @@ export default function AdminDashboard() {
                           <div className="flex gap-2">
                             <button onClick={() => {
                               setEditItem(item)
-                              setNewItem({ name: item.name, nameHindi: item.nameHindi, categoryId: item.categoryId, type: item.type, brands: (item.brands as string[]).join(', ') })
+                              setNewItem({
+                                name: item.name, nameHindi: item.nameHindi,
+                                categoryId: item.categoryId, subCategoryId: item.subCategoryId,
+                                units: item.units as string[],
+                                brands: (item.brands as string[]).join(', '),
+                                imageUrl: item.imageUrl || ''
+                              })
                               setShowItemModal(true)
                             }} className="text-[10px] bg-[#21262d] text-[#c9d1d9] px-2 py-1 rounded-lg hover:text-white">✏️ Edit</button>
-                            <button onClick={() => deleteItem(item.id)} className="text-[10px] bg-red-900/20 text-red-400 px-2 py-1 rounded-lg hover:bg-red-900/40">🗑️</button>
+                            <button onClick={() => deleteItem(item.id)}
+                              className="text-[10px] bg-red-900/20 text-red-400 px-2 py-1 rounded-lg hover:bg-red-900/40">🗑️</button>
                           </div>
                         </td>
                       </tr>
@@ -462,47 +562,77 @@ export default function AdminDashboard() {
       {/* ── Item Modal ── */}
       {showItemModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-sm font-bold text-white mb-4">{editItem ? '✏️ Item Edit Karein' : '➕ Naya Item Add Karein'}</h3>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-[#8b949e] mb-1 block">Item Naam (English)*</label>
                   <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
-                    placeholder="Haldi Powder" value={newItem.name} onChange={e => setNewItem(p => ({ ...p, name: e.target.value }))} />
+                    placeholder="Basmati Rice" value={newItem.name}
+                    onChange={e => setNewItem(p => ({ ...p, name: e.target.value }))} />
                 </div>
                 <div>
                   <label className="text-xs text-[#8b949e] mb-1 block">Hindi Naam</label>
                   <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
-                    placeholder="हल्दी पाउडर" value={newItem.nameHindi} onChange={e => setNewItem(p => ({ ...p, nameHindi: e.target.value }))} />
+                    placeholder="बासमती चावल" value={newItem.nameHindi}
+                    onChange={e => setNewItem(p => ({ ...p, nameHindi: e.target.value }))} />
                 </div>
               </div>
+
               {!editItem && (
-                <div>
-                  <label className="text-xs text-[#8b949e] mb-1 block">Category*</label>
-                  <select className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none"
-                    value={newItem.categoryId} onChange={e => setNewItem(p => ({ ...p, categoryId: e.target.value }))}>
-                    <option value="">— Category chunein —</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-                  </select>
-                </div>
+                <>
+                  <div>
+                    <label className="text-xs text-[#8b949e] mb-1 block">Category*</label>
+                    <select className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none"
+                      value={newItem.categoryId}
+                      onChange={e => {
+                        setNewItem(p => ({ ...p, categoryId: e.target.value, subCategoryId: '' }))
+                        setFilteredSubCats(subCategories.filter(s => s.categoryId === e.target.value))
+                      }}>
+                      <option value="">— Category chunein —</option>
+                      {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#8b949e] mb-1 block">Sub-Category*</label>
+                    <select className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none"
+                      value={newItem.subCategoryId}
+                      onChange={e => setNewItem(p => ({ ...p, subCategoryId: e.target.value }))}>
+                      <option value="">— Sub-Category chunein —</option>
+                      {filteredSubCats.map(s => <option key={s.id} value={s.id}>{s.icon} {s.name}</option>)}
+                    </select>
+                  </div>
+                </>
               )}
+
               <div>
-                <label className="text-xs text-[#8b949e] mb-1 block">Type*</label>
-                <div className="flex gap-2">
-                  {[{ v: 'packet_only', l: '📦 Sirf Packet' }, { v: 'packet_and_loose', l: '⚖️ Packet + Loose' }].map(t => (
-                    <button key={t.v} onClick={() => setNewItem(p => ({ ...p, type: t.v }))}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${newItem.type === t.v ? 'bg-[#1f6feb] text-white' : 'bg-[#0d1117] text-[#8b949e] border border-[#30363d]'}`}>
-                      {t.l}
+                <label className="text-xs text-[#8b949e] mb-2 block">Units* (jo bhi applicable ho select karein)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {UNIT_OPTIONS.map(u => (
+                    <button key={u.value} onClick={() => toggleUnit(u.value)}
+                      className={`py-2 rounded-lg text-xs font-bold transition-colors ${newItem.units.includes(u.value) ? 'bg-[#1f6feb] text-white' : 'bg-[#0d1117] text-[#8b949e] border border-[#30363d]'}`}>
+                      {u.label}
                     </button>
                   ))}
                 </div>
               </div>
+
               <div>
                 <label className="text-xs text-[#8b949e] mb-1 block">Brands (comma se alag karein)</label>
                 <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
-                  placeholder="MDH, Everest, Catch, Local" value={newItem.brands} onChange={e => setNewItem(p => ({ ...p, brands: e.target.value }))} />
+                  placeholder="India Gate, Daawat, Fortune, Local"
+                  value={newItem.brands}
+                  onChange={e => setNewItem(p => ({ ...p, brands: e.target.value }))} />
               </div>
+
+              <div>
+                <label className="text-xs text-[#8b949e] mb-1 block">Image URL (optional)</label>
+                <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
+                  placeholder="https://..." value={newItem.imageUrl}
+                  onChange={e => setNewItem(p => ({ ...p, imageUrl: e.target.value }))} />
+              </div>
+
               <div className="flex gap-3 pt-1">
                 <button onClick={() => { setShowItemModal(false); setEditItem(null) }}
                   className="flex-1 py-2.5 border border-[#30363d] text-[#8b949e] rounded-xl text-sm">Cancel</button>
@@ -525,17 +655,20 @@ export default function AdminDashboard() {
               <div>
                 <label className="text-xs text-[#8b949e] mb-1 block">Category Naam*</label>
                 <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
-                  placeholder="Frozen Food" value={newCat.name} onChange={e => setNewCat(p => ({ ...p, name: e.target.value }))} />
+                  placeholder="Dairy & Breakfast" value={newCat.name}
+                  onChange={e => setNewCat(p => ({ ...p, name: e.target.value }))} />
               </div>
               <div>
                 <label className="text-xs text-[#8b949e] mb-1 block">Hindi Naam</label>
                 <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
-                  placeholder="फ्रोजन फूड" value={newCat.nameHindi} onChange={e => setNewCat(p => ({ ...p, nameHindi: e.target.value }))} />
+                  placeholder="डेयरी और नाश्ता" value={newCat.nameHindi}
+                  onChange={e => setNewCat(p => ({ ...p, nameHindi: e.target.value }))} />
               </div>
               <div>
                 <label className="text-xs text-[#8b949e] mb-1 block">Icon (emoji)*</label>
                 <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
-                  placeholder="🧊" value={newCat.icon} onChange={e => setNewCat(p => ({ ...p, icon: e.target.value }))} />
+                  placeholder="🥛" value={newCat.icon}
+                  onChange={e => setNewCat(p => ({ ...p, icon: e.target.value }))} />
               </div>
               <div className="flex gap-3 pt-1">
                 <button onClick={() => setShowCatModal(false)}
@@ -547,6 +680,51 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* ── SubCategory Modal ── */}
+      {showSubCatModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 w-full max-w-sm">
+            <h3 className="text-sm font-bold text-white mb-4">➕ Naya Sub-Category Add Karein</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[#8b949e] mb-1 block">Category Chunein*</label>
+                <select className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none"
+                  value={newSubCat.categoryId}
+                  onChange={e => setNewSubCat(p => ({ ...p, categoryId: e.target.value }))}>
+                  <option value="">— Category chunein —</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-[#8b949e] mb-1 block">Sub-Category Naam*</label>
+                <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
+                  placeholder="Basmati Rice" value={newSubCat.name}
+                  onChange={e => setNewSubCat(p => ({ ...p, name: e.target.value }))} />
+              </div>
+              <div>
+                <label className="text-xs text-[#8b949e] mb-1 block">Hindi Naam</label>
+                <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
+                  placeholder="बासमती चावल" value={newSubCat.nameHindi}
+                  onChange={e => setNewSubCat(p => ({ ...p, nameHindi: e.target.value }))} />
+              </div>
+              <div>
+                <label className="text-xs text-[#8b949e] mb-1 block">Icon (emoji, optional)</label>
+                <input className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-white outline-none focus:border-[#1f6feb]"
+                  placeholder="🍚" value={newSubCat.icon}
+                  onChange={e => setNewSubCat(p => ({ ...p, icon: e.target.value }))} />
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button onClick={() => setShowSubCatModal(false)}
+                  className="flex-1 py-2.5 border border-[#30363d] text-[#8b949e] rounded-xl text-sm">Cancel</button>
+                <button onClick={saveSubCat}
+                  className="flex-1 py-2.5 bg-[#1f6feb] text-white rounded-xl text-sm font-bold">Add Karein</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

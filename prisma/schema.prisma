@@ -8,28 +8,27 @@ datasource db {
 }
 
 model Shop {
-  id               String   @id @default(cuid())
-  shopName         String
-  ownerName        String
-  mobile           String   @unique
-  whatsapp         String
-  email            String?
-  address          String
-  regNumber        String?
-  bannerUrl        String?
-  openTime         String
-  closeTime        String
-  paymentMethod    String
-  slug             String   @unique
-  isActive         Boolean  @default(true)
-  trialEndsAt      DateTime
+  id                 String       @id @default(cuid())
+  shopName           String
+  ownerName          String
+  mobile             String       @unique
+  whatsapp           String
+  email              String?
+  address            String
+  regNumber          String?
+  bannerUrl          String?
+  openTime           String
+  closeTime          String
+  paymentMethod      String
+  slug               String       @unique
+  isActive           Boolean      @default(true)
+  trialEndsAt        DateTime
   subscriptionEndsAt DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  orders       Order[]
-  payments     Payment[]
-  otpSessions  OtpSession[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  orders             Order[]
+  payments           Payment[]
+  otpSessions        OtpSession[]
 
   @@index([mobile, address, shopName])
 }
@@ -48,57 +47,78 @@ model OtpSession {
 }
 
 model Order {
-  id             String   @id @default(cuid())
-  shopId         String
-  shop           Shop     @relation(fields: [shopId], references: [id])
-  customerName   String
-  customerMobile String
+  id              String   @id @default(cuid())
+  shopId          String
+  shop            Shop     @relation(fields: [shopId], references: [id])
+  customerName    String
+  customerMobile  String
   customerAddress String
-  items          Json
-  homeDelivery   Boolean  @default(false)
-  deliveryCharge Int      @default(0)
-  paymentMethod  String
-  totalAmount    Int?
-  status         String   @default("new")
-  createdAt      DateTime @default(now())
+  items           Json
+  homeDelivery    Boolean  @default(false)
+  deliveryCharge  Int      @default(0)
+  paymentMethod   String
+  totalAmount     Int?
+  status          String   @default("new")
+  createdAt       DateTime @default(now())
 
   @@index([shopId, createdAt])
 }
 
 model Payment {
-  id                String   @id @default(cuid())
-  shopId            String
-  shop              Shop     @relation(fields: [shopId], references: [id])
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  amount            Int
-  status            String   @default("pending")
-  subscriptionEndsAt DateTime?  // ← Yeh add kiya hai
-  createdAt         DateTime @default(now())
+  id                 String    @id @default(cuid())
+  shopId             String
+  shop               Shop      @relation(fields: [shopId], references: [id])
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  amount             Int
+  status             String    @default("pending")
+  subscriptionEndsAt DateTime?
+  createdAt          DateTime  @default(now())
 
   @@index([shopId])
 }
 
 model Category {
-  id        String @id @default(cuid())
-  name      String
-  nameHindi String
-  icon      String
-  sortOrder Int    @default(0)
-  isActive  Boolean @default(true)
-  items     Item[]
+  id            String        @id @default(cuid())
+  name          String
+  nameHindi     String
+  icon          String
+  sortOrder     Int           @default(0)
+  isActive      Boolean       @default(true)
+  subCategories SubCategory[]
+  items         Item[]
 }
 
-model Item {
+model SubCategory {
   id         String   @id @default(cuid())
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
   name       String
   nameHindi  String
-  type       String   // "packet_only" or "packet_and_loose"
-  brands     Json     // array of brand names
-  isActive   Boolean  @default(true)
+  icon       String?
   sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  items      Item[]
+
+  @@index([categoryId])
+}
+
+model Item {
+  id            String      @id @default(cuid())
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+  subCategoryId String
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+  name          String
+  nameHindi     String
+  imageUrl      String?
+  units         Json
+  brands        Json
+  isActive      Boolean     @default(true)
+  sortOrder     Int         @default(0)
+
+  @@index([categoryId])
+  @@index([subCategoryId])
 }
 
 model Admin {

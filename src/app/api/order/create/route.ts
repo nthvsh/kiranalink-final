@@ -67,14 +67,22 @@ export async function POST(req: NextRequest) {
     const deliveryCharge = homeDelivery ? 30 : 0
     const now = new Date()
 
-    // Save order to DB
+    // Save order to DB — items mein imageUrl hata do (DB mein nahi chahiye)
+    const orderItems = items.map((item: any) => ({
+      name: item.name,
+      brand: item.brand,
+      quantity: item.quantity,
+      unit: item.unit,
+      unitLabel: item.unitLabel,
+    }))
+
     const order = await prisma.order.create({
       data: {
         shopId,
         customerName,
         customerMobile,
         customerAddress,
-        items,
+        items: orderItems,
         homeDelivery,
         deliveryCharge,
         paymentMethod,
@@ -87,48 +95,35 @@ export async function POST(req: NextRequest) {
     let shopkeeperWhatsappSent = false
     let customerWhatsappSent = false
 
-    // ⬇️ FIX: Shopkeeper WhatsApp number check
+    // Shopkeeper WhatsApp number check
     let shopkeeperNumber = shop.whatsapp || shop.mobile
     if (!shopkeeperNumber) {
       console.log('⚠️ Shopkeeper number missing!')
       shopkeeperNumber = ''
-    } else {
-      console.log('📱 Shopkeeper number:', shopkeeperNumber)
     }
 
     // 1. Send WhatsApp to shopkeeper
-    console.log('🚀 === SHOPKEEPER WA START ===')
-    
     const waMessage = formatOrderMessage({
       shopName: shop.shopName,
       customerName,
       customerMobile,
       customerAddress,
-      items,
+      items: orderItems,
       homeDelivery,
       paymentMethod,
       orderTime,
     })
 
-    console.log('🚀 Message formatted, length:', waMessage.length)
-
     if (shopkeeperNumber) {
       try {
         shopkeeperWhatsappSent = await sendWhatsAppOrder(shopkeeperNumber, waMessage)
-        console.log('🚀 === SHOPKEEPER WA END === result:', shopkeeperWhatsappSent)
       } catch (err: any) {
-        console.error('❌ === SHOPKEEPER WA ERROR ===', err.message)
+        console.error('❌ Shopkeeper WA error:', err.message)
         shopkeeperWhatsappSent = false
       }
-    } else {
-      console.log('⚠️ Skipping shopkeeper WA — no number')
     }
 
-    console.log(`📤 Shopkeeper WA sent: ${shopkeeperWhatsappSent}`)
-
     // 2. Send WhatsApp confirmation to customer
-    console.log('🚀 === CUSTOMER WA START ===')
-    
     const customerMessage = formatCustomerConfirmationMessage(
       shop.shopName,
       customerName,
@@ -137,37 +132,21 @@ export async function POST(req: NextRequest) {
       paymentMethod
     )
 
-    // Customer mobile number normalize
     const customerMobileNormalized = customerMobile.replace(/\D/g, '').slice(-10)
     const customerWhatsappNumber = `91${customerMobileNormalized}`
 
-    console.log('🚀 Customer number:', customerWhatsappNumber)
-
     try {
       customerWhatsappSent = await sendWhatsAppOrder(customerWhatsappNumber, customerMessage)
-      console.log('🚀 === CUSTOMER WA END === result:', customerWhatsappSent)
     } catch (err: any) {
-      console.error('❌ === CUSTOMER WA ERROR ===', err.message)
+      console.error('❌ Customer WA error:', err.message)
       customerWhatsappSent = false
     }
-
-    console.log(`📤 Customer WA sent: ${customerWhatsappSent}`)
 
     return NextResponse.json({
       success: true,
       orderId: order.id,
       shopkeeperWhatsappSent,
       customerWhatsappSent,
-      debug: {
-        shopWhatsapp: shop.whatsapp,
-        shopMobile: shop.mobile,
-        shopkeeperNumberUsed: shopkeeperNumber,
-        hasWhatsapp: !!shop.whatsapp,
-        hasMobile: !!shop.mobile,
-        twilioSid: !!process.env.TWILIO_ACCOUNT_SID,
-        twilioToken: !!process.env.TWILIO_AUTH_TOKEN,
-        twilioFrom: process.env.TWILIO_WHATSAPP_FROM,
-      },
       message: 'Order confirm ho gaya!',
     })
   } catch (error) {
