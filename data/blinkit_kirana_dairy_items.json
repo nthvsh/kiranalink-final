@@ -1,0 +1,1712 @@
+{
+  "platform": "Blinkit",
+  "data_type": "Kirana & Dairy Items (Representative Sample)",
+  "total_items": 170,
+  "categories": {
+    "Dairy": 47,
+    "Grocery": 123
+  },
+  "note": "Blinkit does not publicly release its full product catalog. This is a representative dataset based on commonly listed items.",
+  "items": [
+    {
+      "id": 1,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Amul Taaza Full Cream Milk",
+      "brand": "Amul",
+      "unit": "1L",
+      "price_inr": 68,
+      "in_stock": true
+    },
+    {
+      "id": 2,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Amul Gold Full Cream Milk",
+      "brand": "Amul",
+      "unit": "500ml",
+      "price_inr": 36,
+      "in_stock": true
+    },
+    {
+      "id": 3,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Mother Dairy Full Cream Milk",
+      "brand": "Mother Dairy",
+      "unit": "1L",
+      "price_inr": 66,
+      "in_stock": true
+    },
+    {
+      "id": 4,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Mother Dairy Toned Milk",
+      "brand": "Mother Dairy",
+      "unit": "500ml",
+      "price_inr": 28,
+      "in_stock": true
+    },
+    {
+      "id": 5,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Nestle a+ Nangrow Milk",
+      "brand": "Nestle",
+      "unit": "200ml",
+      "price_inr": 35,
+      "in_stock": true
+    },
+    {
+      "id": 6,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Amul Slim N Trim Skimmed Milk",
+      "brand": "Amul",
+      "unit": "500ml",
+      "price_inr": 30,
+      "in_stock": true
+    },
+    {
+      "id": 7,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Parag Toned Milk",
+      "brand": "Parag",
+      "unit": "1L",
+      "price_inr": 62,
+      "in_stock": true
+    },
+    {
+      "id": 8,
+      "main_category": "Dairy",
+      "sub_category": "Milk",
+      "product_name": "Kwality Toned Milk",
+      "brand": "Kwality",
+      "unit": "1L",
+      "price_inr": 60,
+      "in_stock": true
+    },
+    {
+      "id": 9,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Amul Masti Dahi",
+      "brand": "Amul",
+      "unit": "400g",
+      "price_inr": 46,
+      "in_stock": true
+    },
+    {
+      "id": 10,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Mother Dairy Fresh Dahi",
+      "brand": "Mother Dairy",
+      "unit": "400g",
+      "price_inr": 44,
+      "in_stock": true
+    },
+    {
+      "id": 11,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Epigamia Greek Yogurt Plain",
+      "brand": "Epigamia",
+      "unit": "90g",
+      "price_inr": 40,
+      "in_stock": true
+    },
+    {
+      "id": 12,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Epigamia Greek Yogurt Mango",
+      "brand": "Epigamia",
+      "unit": "90g",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 13,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Nestle a+ Dahi",
+      "brand": "Nestle",
+      "unit": "400g",
+      "price_inr": 48,
+      "in_stock": true
+    },
+    {
+      "id": 14,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Parag Dahi",
+      "brand": "Parag",
+      "unit": "200g",
+      "price_inr": 25,
+      "in_stock": true
+    },
+    {
+      "id": 15,
+      "main_category": "Dairy",
+      "sub_category": "Curd & Yogurt",
+      "product_name": "Go Cheese Hung Curd",
+      "brand": "Go Cheese",
+      "unit": "200g",
+      "price_inr": 80,
+      "in_stock": true
+    },
+    {
+      "id": 16,
+      "main_category": "Dairy",
+      "sub_category": "Paneer",
+      "product_name": "Amul Fresh Paneer",
+      "brand": "Amul",
+      "unit": "200g",
+      "price_inr": 92,
+      "in_stock": true
+    },
+    {
+      "id": 17,
+      "main_category": "Dairy",
+      "sub_category": "Paneer",
+      "product_name": "Mother Dairy Paneer",
+      "brand": "Mother Dairy",
+      "unit": "200g",
+      "price_inr": 88,
+      "in_stock": true
+    },
+    {
+      "id": 18,
+      "main_category": "Dairy",
+      "sub_category": "Paneer",
+      "product_name": "Parag Paneer",
+      "brand": "Parag",
+      "unit": "200g",
+      "price_inr": 90,
+      "in_stock": true
+    },
+    {
+      "id": 19,
+      "main_category": "Dairy",
+      "sub_category": "Paneer",
+      "product_name": "Go Cheese Paneer",
+      "brand": "Go Cheese",
+      "unit": "200g",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 20,
+      "main_category": "Dairy",
+      "sub_category": "Paneer",
+      "product_name": "Milky Mist Paneer",
+      "brand": "Milky Mist",
+      "unit": "200g",
+      "price_inr": 94,
+      "in_stock": true
+    },
+    {
+      "id": 21,
+      "main_category": "Dairy",
+      "sub_category": "Butter",
+      "product_name": "Amul Butter Salted",
+      "brand": "Amul",
+      "unit": "100g",
+      "price_inr": 57,
+      "in_stock": true
+    },
+    {
+      "id": 22,
+      "main_category": "Dairy",
+      "sub_category": "Butter",
+      "product_name": "Amul Butter Unsalted",
+      "brand": "Amul",
+      "unit": "100g",
+      "price_inr": 58,
+      "in_stock": true
+    },
+    {
+      "id": 23,
+      "main_category": "Dairy",
+      "sub_category": "Butter",
+      "product_name": "Mother Dairy Butter",
+      "brand": "Mother Dairy",
+      "unit": "100g",
+      "price_inr": 55,
+      "in_stock": true
+    },
+    {
+      "id": 24,
+      "main_category": "Dairy",
+      "sub_category": "Butter",
+      "product_name": "Verka Butter",
+      "brand": "Verka",
+      "unit": "100g",
+      "price_inr": 52,
+      "in_stock": true
+    },
+    {
+      "id": 25,
+      "main_category": "Dairy",
+      "sub_category": "Butter",
+      "product_name": "Gowardhan Butter",
+      "brand": "Gowardhan",
+      "unit": "100g",
+      "price_inr": 56,
+      "in_stock": true
+    },
+    {
+      "id": 26,
+      "main_category": "Dairy",
+      "sub_category": "Ghee",
+      "product_name": "Amul Pure Ghee",
+      "brand": "Amul",
+      "unit": "500ml",
+      "price_inr": 325,
+      "in_stock": true
+    },
+    {
+      "id": 27,
+      "main_category": "Dairy",
+      "sub_category": "Ghee",
+      "product_name": "Mother Dairy Ghee",
+      "brand": "Mother Dairy",
+      "unit": "500ml",
+      "price_inr": 310,
+      "in_stock": true
+    },
+    {
+      "id": 28,
+      "main_category": "Dairy",
+      "sub_category": "Ghee",
+      "product_name": "Patanjali Cow Ghee",
+      "brand": "Patanjali",
+      "unit": "500ml",
+      "price_inr": 295,
+      "in_stock": true
+    },
+    {
+      "id": 29,
+      "main_category": "Dairy",
+      "sub_category": "Ghee",
+      "product_name": "Saffola Gold Ghee",
+      "brand": "Saffola",
+      "unit": "500ml",
+      "price_inr": 340,
+      "in_stock": true
+    },
+    {
+      "id": 30,
+      "main_category": "Dairy",
+      "sub_category": "Ghee",
+      "product_name": "Gowardhan Ghee",
+      "brand": "Gowardhan",
+      "unit": "500ml",
+      "price_inr": 315,
+      "in_stock": true
+    },
+    {
+      "id": 31,
+      "main_category": "Dairy",
+      "sub_category": "Cheese",
+      "product_name": "Amul Processed Cheese Block",
+      "brand": "Amul",
+      "unit": "200g",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 32,
+      "main_category": "Dairy",
+      "sub_category": "Cheese",
+      "product_name": "Amul Cheese Slices",
+      "brand": "Amul",
+      "unit": "200g",
+      "price_inr": 155,
+      "in_stock": true
+    },
+    {
+      "id": 33,
+      "main_category": "Dairy",
+      "sub_category": "Cheese",
+      "product_name": "Go Cheese Slices",
+      "brand": "Go Cheese",
+      "unit": "200g",
+      "price_inr": 160,
+      "in_stock": true
+    },
+    {
+      "id": 34,
+      "main_category": "Dairy",
+      "sub_category": "Cheese",
+      "product_name": "Britannia Cheese Slices",
+      "brand": "Britannia",
+      "unit": "150g",
+      "price_inr": 140,
+      "in_stock": true
+    },
+    {
+      "id": 35,
+      "main_category": "Dairy",
+      "sub_category": "Cheese",
+      "product_name": "Amul Pizza Mozzarella Cheese",
+      "brand": "Amul",
+      "unit": "200g",
+      "price_inr": 180,
+      "in_stock": true
+    },
+    {
+      "id": 36,
+      "main_category": "Dairy",
+      "sub_category": "Eggs",
+      "product_name": "Eggoz Nutrition White Eggs",
+      "brand": "Eggoz",
+      "unit": "6pcs",
+      "price_inr": 68,
+      "in_stock": true
+    },
+    {
+      "id": 37,
+      "main_category": "Dairy",
+      "sub_category": "Eggs",
+      "product_name": "Country Delight Desi Eggs",
+      "brand": "Country Delight",
+      "unit": "6pcs",
+      "price_inr": 85,
+      "in_stock": true
+    },
+    {
+      "id": 38,
+      "main_category": "Dairy",
+      "sub_category": "Eggs",
+      "product_name": "Licious Farm Fresh Eggs",
+      "brand": "Licious",
+      "unit": "6pcs",
+      "price_inr": 72,
+      "in_stock": true
+    },
+    {
+      "id": 39,
+      "main_category": "Dairy",
+      "sub_category": "Eggs",
+      "product_name": "Eggoz Brown Eggs",
+      "brand": "Eggoz",
+      "unit": "6pcs",
+      "price_inr": 78,
+      "in_stock": true
+    },
+    {
+      "id": 40,
+      "main_category": "Dairy",
+      "sub_category": "Cream & Condensed Milk",
+      "product_name": "Amul Fresh Cream",
+      "brand": "Amul",
+      "unit": "250ml",
+      "price_inr": 90,
+      "in_stock": true
+    },
+    {
+      "id": 41,
+      "main_category": "Dairy",
+      "sub_category": "Cream & Condensed Milk",
+      "product_name": "Amul Mithai Mate Condensed Milk",
+      "brand": "Amul",
+      "unit": "400g",
+      "price_inr": 138,
+      "in_stock": true
+    },
+    {
+      "id": 42,
+      "main_category": "Dairy",
+      "sub_category": "Cream & Condensed Milk",
+      "product_name": "Nestle Milkmaid Condensed Milk",
+      "brand": "Nestle",
+      "unit": "400g",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 43,
+      "main_category": "Dairy",
+      "sub_category": "Cream & Condensed Milk",
+      "product_name": "Amul Whipping Cream",
+      "brand": "Amul",
+      "unit": "250ml",
+      "price_inr": 175,
+      "in_stock": true
+    },
+    {
+      "id": 44,
+      "main_category": "Dairy",
+      "sub_category": "Flavoured Milk",
+      "product_name": "Amul Kool Chocolate Milk",
+      "brand": "Amul",
+      "unit": "200ml",
+      "price_inr": 30,
+      "in_stock": true
+    },
+    {
+      "id": 45,
+      "main_category": "Dairy",
+      "sub_category": "Flavoured Milk",
+      "product_name": "Amul Kool Cafe",
+      "brand": "Amul",
+      "unit": "200ml",
+      "price_inr": 30,
+      "in_stock": true
+    },
+    {
+      "id": 46,
+      "main_category": "Dairy",
+      "sub_category": "Flavoured Milk",
+      "product_name": "Mother Dairy Mishti Doi",
+      "brand": "Mother Dairy",
+      "unit": "100g",
+      "price_inr": 28,
+      "in_stock": true
+    },
+    {
+      "id": 47,
+      "main_category": "Dairy",
+      "sub_category": "Flavoured Milk",
+      "product_name": "Maaza Mango Drink",
+      "brand": "Coca-Cola",
+      "unit": "600ml",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 48,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Aashirvaad Whole Wheat Atta",
+      "brand": "Aashirvaad",
+      "unit": "5kg",
+      "price_inr": 285,
+      "in_stock": true
+    },
+    {
+      "id": 49,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Aashirvaad Multigrain Atta",
+      "brand": "Aashirvaad",
+      "unit": "5kg",
+      "price_inr": 310,
+      "in_stock": true
+    },
+    {
+      "id": 50,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Pillsbury Chakki Fresh Atta",
+      "brand": "Pillsbury",
+      "unit": "5kg",
+      "price_inr": 275,
+      "in_stock": true
+    },
+    {
+      "id": 51,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Patanjali Whole Wheat Atta",
+      "brand": "Patanjali",
+      "unit": "5kg",
+      "price_inr": 265,
+      "in_stock": true
+    },
+    {
+      "id": 52,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Nature Fresh Sampoorna Chakki Atta",
+      "brand": "Nature Fresh",
+      "unit": "5kg",
+      "price_inr": 280,
+      "in_stock": true
+    },
+    {
+      "id": 53,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Aashirvaad Superior MP Wheat Atta",
+      "brand": "Aashirvaad",
+      "unit": "2kg",
+      "price_inr": 120,
+      "in_stock": true
+    },
+    {
+      "id": 54,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Atta / Flour",
+      "product_name": "Rajdhani Whole Wheat Atta",
+      "brand": "Rajdhani",
+      "unit": "5kg",
+      "price_inr": 270,
+      "in_stock": true
+    },
+    {
+      "id": 55,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "India Gate Basmati Rice Classic",
+      "brand": "India Gate",
+      "unit": "1kg",
+      "price_inr": 120,
+      "in_stock": true
+    },
+    {
+      "id": 56,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "India Gate Feast Rozzana Basmati",
+      "brand": "India Gate",
+      "unit": "5kg",
+      "price_inr": 520,
+      "in_stock": true
+    },
+    {
+      "id": 57,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "Daawat Rozana Basmati Rice",
+      "brand": "Daawat",
+      "unit": "5kg",
+      "price_inr": 495,
+      "in_stock": true
+    },
+    {
+      "id": 58,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "Fortune Biryani Special Basmati Rice",
+      "brand": "Fortune",
+      "unit": "1kg",
+      "price_inr": 128,
+      "in_stock": true
+    },
+    {
+      "id": 59,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "Kohinoor Super Value Basmati Rice",
+      "brand": "Kohinoor",
+      "unit": "5kg",
+      "price_inr": 480,
+      "in_stock": true
+    },
+    {
+      "id": 60,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "Patanjali Basmati Rice",
+      "brand": "Patanjali",
+      "unit": "1kg",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 61,
+      "main_category": "Grocery - Atta & Grains",
+      "sub_category": "Rice",
+      "product_name": "24 Mantra Organic Brown Rice",
+      "brand": "24 Mantra",
+      "unit": "1kg",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 62,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Tata Sampann Masoor Dal",
+      "brand": "Tata Sampann",
+      "unit": "500g",
+      "price_inr": 85,
+      "in_stock": true
+    },
+    {
+      "id": 63,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Tata Sampann Chana Dal",
+      "brand": "Tata Sampann",
+      "unit": "500g",
+      "price_inr": 80,
+      "in_stock": true
+    },
+    {
+      "id": 64,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Tata Sampann Urad Dal",
+      "brand": "Tata Sampann",
+      "unit": "500g",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 65,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Tata Sampann Moong Dal",
+      "brand": "Tata Sampann",
+      "unit": "500g",
+      "price_inr": 88,
+      "in_stock": true
+    },
+    {
+      "id": 66,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Patanjali Arhar Dal",
+      "brand": "Patanjali",
+      "unit": "1kg",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 67,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "BB Royal Rajma Chitra",
+      "brand": "BB Royal",
+      "unit": "500g",
+      "price_inr": 92,
+      "in_stock": true
+    },
+    {
+      "id": 68,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Tata Sampann Toor Dal",
+      "brand": "Tata Sampann",
+      "unit": "1kg",
+      "price_inr": 160,
+      "in_stock": true
+    },
+    {
+      "id": 69,
+      "main_category": "Grocery - Dal & Pulses",
+      "sub_category": "Dal",
+      "product_name": "Nature Fresh Kabuli Chana",
+      "brand": "Nature Fresh",
+      "unit": "500g",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 70,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Fortune Sunflower Refined Oil",
+      "brand": "Fortune",
+      "unit": "1L",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 71,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Saffola Gold Refined Oil",
+      "brand": "Saffola",
+      "unit": "1L",
+      "price_inr": 175,
+      "in_stock": true
+    },
+    {
+      "id": 72,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Dhara Groundnut Oil",
+      "brand": "Dhara",
+      "unit": "1L",
+      "price_inr": 195,
+      "in_stock": true
+    },
+    {
+      "id": 73,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Patanjali Mustard Oil",
+      "brand": "Patanjali",
+      "unit": "1L",
+      "price_inr": 155,
+      "in_stock": true
+    },
+    {
+      "id": 74,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Fortune Mustard Oil",
+      "brand": "Fortune",
+      "unit": "1L",
+      "price_inr": 160,
+      "in_stock": true
+    },
+    {
+      "id": 75,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Borges Olive Oil Extra Light",
+      "brand": "Borges",
+      "unit": "500ml",
+      "price_inr": 420,
+      "in_stock": true
+    },
+    {
+      "id": 76,
+      "main_category": "Grocery - Oil & Ghee",
+      "sub_category": "Oil",
+      "product_name": "Figaro Olive Oil",
+      "brand": "Figaro",
+      "unit": "500ml",
+      "price_inr": 395,
+      "in_stock": true
+    },
+    {
+      "id": 77,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Sugar & Jaggery",
+      "product_name": "Uttam Sugar",
+      "brand": "Uttam",
+      "unit": "1kg",
+      "price_inr": 48,
+      "in_stock": true
+    },
+    {
+      "id": 78,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Sugar & Jaggery",
+      "product_name": "Patanjali Organic Sugar",
+      "brand": "Patanjali",
+      "unit": "1kg",
+      "price_inr": 55,
+      "in_stock": true
+    },
+    {
+      "id": 79,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Sugar & Jaggery",
+      "product_name": "Organic India Jaggery Powder",
+      "brand": "Organic India",
+      "unit": "500g",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 80,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Sugar & Jaggery",
+      "product_name": "Patanjali Desi Khand",
+      "brand": "Patanjali",
+      "unit": "1kg",
+      "price_inr": 68,
+      "in_stock": true
+    },
+    {
+      "id": 81,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Salt",
+      "product_name": "Tata Salt",
+      "brand": "Tata",
+      "unit": "1kg",
+      "price_inr": 28,
+      "in_stock": true
+    },
+    {
+      "id": 82,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Salt",
+      "product_name": "Catch Double Refined Iodized Salt",
+      "brand": "Catch",
+      "unit": "1kg",
+      "price_inr": 25,
+      "in_stock": true
+    },
+    {
+      "id": 83,
+      "main_category": "Grocery - Sugar & Salt",
+      "sub_category": "Salt",
+      "product_name": "Patanjali Sendha Namak",
+      "brand": "Patanjali",
+      "unit": "1kg",
+      "price_inr": 30,
+      "in_stock": true
+    },
+    {
+      "id": 84,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "MDH Kitchen King Masala",
+      "brand": "MDH",
+      "unit": "100g",
+      "price_inr": 68,
+      "in_stock": true
+    },
+    {
+      "id": 85,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Everest Garam Masala",
+      "brand": "Everest",
+      "unit": "100g",
+      "price_inr": 72,
+      "in_stock": true
+    },
+    {
+      "id": 86,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Badshah Rajwadi Garam Masala",
+      "brand": "Badshah",
+      "unit": "100g",
+      "price_inr": 65,
+      "in_stock": true
+    },
+    {
+      "id": 87,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Catch Haldi Powder",
+      "brand": "Catch",
+      "unit": "200g",
+      "price_inr": 58,
+      "in_stock": true
+    },
+    {
+      "id": 88,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "MDH Chana Masala",
+      "brand": "MDH",
+      "unit": "100g",
+      "price_inr": 62,
+      "in_stock": true
+    },
+    {
+      "id": 89,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Everest Pav Bhaji Masala",
+      "brand": "Everest",
+      "unit": "50g",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 90,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "MDH Chole Masala",
+      "brand": "MDH",
+      "unit": "100g",
+      "price_inr": 60,
+      "in_stock": true
+    },
+    {
+      "id": 91,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Catch Red Chilli Powder",
+      "brand": "Catch",
+      "unit": "200g",
+      "price_inr": 65,
+      "in_stock": true
+    },
+    {
+      "id": 92,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Everest Chicken Masala",
+      "brand": "Everest",
+      "unit": "50g",
+      "price_inr": 48,
+      "in_stock": true
+    },
+    {
+      "id": 93,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Masala",
+      "product_name": "Patanjali Sabzi Masala",
+      "brand": "Patanjali",
+      "unit": "100g",
+      "price_inr": 42,
+      "in_stock": true
+    },
+    {
+      "id": 94,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Dry Fruits",
+      "product_name": "Happilo Premium Cashews",
+      "brand": "Happilo",
+      "unit": "200g",
+      "price_inr": 265,
+      "in_stock": true
+    },
+    {
+      "id": 95,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Dry Fruits",
+      "product_name": "Happilo Almonds",
+      "brand": "Happilo",
+      "unit": "200g",
+      "price_inr": 280,
+      "in_stock": true
+    },
+    {
+      "id": 96,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Dry Fruits",
+      "product_name": "Nutraj Raisins",
+      "brand": "Nutraj",
+      "unit": "250g",
+      "price_inr": 125,
+      "in_stock": true
+    },
+    {
+      "id": 97,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Dry Fruits",
+      "product_name": "Tulsi Pistachio",
+      "brand": "Tulsi",
+      "unit": "200g",
+      "price_inr": 380,
+      "in_stock": true
+    },
+    {
+      "id": 98,
+      "main_category": "Grocery - Masala & Spices",
+      "sub_category": "Dry Fruits",
+      "product_name": "Happilo Walnuts",
+      "brand": "Happilo",
+      "unit": "200g",
+      "price_inr": 310,
+      "in_stock": true
+    },
+    {
+      "id": 99,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Biscuits & Cookies",
+      "product_name": "Britannia NutriChoice 5 Grain",
+      "brand": "Britannia",
+      "unit": "150g",
+      "price_inr": 35,
+      "in_stock": true
+    },
+    {
+      "id": 100,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Biscuits & Cookies",
+      "product_name": "Parle G Glucose Biscuit",
+      "brand": "Parle",
+      "unit": "125g",
+      "price_inr": 15,
+      "in_stock": true
+    },
+    {
+      "id": 101,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Biscuits & Cookies",
+      "product_name": "Sunfeast Dark Fantasy Choco Fills",
+      "brand": "Sunfeast",
+      "unit": "300g",
+      "price_inr": 90,
+      "in_stock": true
+    },
+    {
+      "id": 102,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Biscuits & Cookies",
+      "product_name": "Oreo Original Cookies",
+      "brand": "Cadbury",
+      "unit": "120g",
+      "price_inr": 35,
+      "in_stock": true
+    },
+    {
+      "id": 103,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Biscuits & Cookies",
+      "product_name": "Hide & Seek Choco Chip Cookies",
+      "brand": "Parle",
+      "unit": "100g",
+      "price_inr": 40,
+      "in_stock": true
+    },
+    {
+      "id": 104,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Biscuits & Cookies",
+      "product_name": "Bourbon Chocolate Cream Biscuits",
+      "brand": "Britannia",
+      "unit": "200g",
+      "price_inr": 48,
+      "in_stock": true
+    },
+    {
+      "id": 105,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Chips & Namkeen",
+      "product_name": "Lay's Classic Salted Chips",
+      "brand": "Lay's",
+      "unit": "73g",
+      "price_inr": 20,
+      "in_stock": true
+    },
+    {
+      "id": 106,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Chips & Namkeen",
+      "product_name": "Haldiram's Aloo Bhujia",
+      "brand": "Haldiram's",
+      "unit": "200g",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 107,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Chips & Namkeen",
+      "product_name": "Haldiram's Moong Dal",
+      "brand": "Haldiram's",
+      "unit": "150g",
+      "price_inr": 65,
+      "in_stock": true
+    },
+    {
+      "id": 108,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Chips & Namkeen",
+      "product_name": "Kurkure Masala Munch",
+      "brand": "Kurkure",
+      "unit": "90g",
+      "price_inr": 20,
+      "in_stock": true
+    },
+    {
+      "id": 109,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Chips & Namkeen",
+      "product_name": "Haldiram's Mixture",
+      "brand": "Haldiram's",
+      "unit": "200g",
+      "price_inr": 90,
+      "in_stock": true
+    },
+    {
+      "id": 110,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Chips & Namkeen",
+      "product_name": "Bingo Mad Angles",
+      "brand": "ITC",
+      "unit": "68g",
+      "price_inr": 20,
+      "in_stock": true
+    },
+    {
+      "id": 111,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Instant Food",
+      "product_name": "Maggi Masala Noodles 2-min",
+      "brand": "Nestle",
+      "unit": "70g",
+      "price_inr": 14,
+      "in_stock": true
+    },
+    {
+      "id": 112,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Instant Food",
+      "product_name": "Yippee Magic Masala Noodles",
+      "brand": "Sunfeast",
+      "unit": "75g",
+      "price_inr": 14,
+      "in_stock": true
+    },
+    {
+      "id": 113,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Instant Food",
+      "product_name": "Cup Noodles Masala Flavour",
+      "brand": "Nestle",
+      "unit": "70g",
+      "price_inr": 30,
+      "in_stock": true
+    },
+    {
+      "id": 114,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Instant Food",
+      "product_name": "MTR Poha Instant",
+      "brand": "MTR",
+      "unit": "80g",
+      "price_inr": 42,
+      "in_stock": true
+    },
+    {
+      "id": 115,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Instant Food",
+      "product_name": "MTR Upma Instant",
+      "brand": "MTR",
+      "unit": "80g",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 116,
+      "main_category": "Grocery - Snacks",
+      "sub_category": "Instant Food",
+      "product_name": "Gits Gulab Jamun Mix",
+      "brand": "Gits",
+      "unit": "200g",
+      "price_inr": 85,
+      "in_stock": true
+    },
+    {
+      "id": 117,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Tea",
+      "product_name": "Tata Tea Premium",
+      "brand": "Tata",
+      "unit": "500g",
+      "price_inr": 235,
+      "in_stock": true
+    },
+    {
+      "id": 118,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Tea",
+      "product_name": "Red Label Natural Care Tea",
+      "brand": "Brooke Bond",
+      "unit": "500g",
+      "price_inr": 245,
+      "in_stock": true
+    },
+    {
+      "id": 119,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Tea",
+      "product_name": "Wagh Bakri Premium Leaf Tea",
+      "brand": "Wagh Bakri",
+      "unit": "500g",
+      "price_inr": 250,
+      "in_stock": true
+    },
+    {
+      "id": 120,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Tea",
+      "product_name": "Lipton Green Tea",
+      "brand": "Lipton",
+      "unit": "25bags",
+      "price_inr": 115,
+      "in_stock": true
+    },
+    {
+      "id": 121,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Tea",
+      "product_name": "Society Tea Premium",
+      "brand": "Society",
+      "unit": "500g",
+      "price_inr": 240,
+      "in_stock": true
+    },
+    {
+      "id": 122,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Coffee",
+      "product_name": "Nescafe Classic Instant Coffee",
+      "brand": "Nescafe",
+      "unit": "100g",
+      "price_inr": 285,
+      "in_stock": true
+    },
+    {
+      "id": 123,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Coffee",
+      "product_name": "Bru Instant Coffee",
+      "brand": "Bru",
+      "unit": "100g",
+      "price_inr": 260,
+      "in_stock": true
+    },
+    {
+      "id": 124,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Coffee",
+      "product_name": "Davidoff Espresso 57 Instant Coffee",
+      "brand": "Davidoff",
+      "unit": "100g",
+      "price_inr": 540,
+      "in_stock": true
+    },
+    {
+      "id": 125,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Coffee",
+      "product_name": "Continental Malabar Blend Coffee",
+      "brand": "Continental",
+      "unit": "200g",
+      "price_inr": 350,
+      "in_stock": true
+    },
+    {
+      "id": 126,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Health Drinks",
+      "product_name": "Horlicks Original Health Drink",
+      "brand": "Horlicks",
+      "unit": "500g",
+      "price_inr": 280,
+      "in_stock": true
+    },
+    {
+      "id": 127,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Health Drinks",
+      "product_name": "Boost Health & Nutrition Drink",
+      "brand": "Boost",
+      "unit": "500g",
+      "price_inr": 295,
+      "in_stock": true
+    },
+    {
+      "id": 128,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Health Drinks",
+      "product_name": "Complan Royale Chocolate",
+      "brand": "Complan",
+      "unit": "500g",
+      "price_inr": 310,
+      "in_stock": true
+    },
+    {
+      "id": 129,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Health Drinks",
+      "product_name": "Bournvita Chocolate Health Drink",
+      "brand": "Cadbury",
+      "unit": "500g",
+      "price_inr": 300,
+      "in_stock": true
+    },
+    {
+      "id": 130,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Cold Drinks",
+      "product_name": "Coca-Cola",
+      "brand": "Coca-Cola",
+      "unit": "750ml",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 131,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Cold Drinks",
+      "product_name": "Pepsi",
+      "brand": "Pepsi",
+      "unit": "750ml",
+      "price_inr": 42,
+      "in_stock": true
+    },
+    {
+      "id": 132,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Cold Drinks",
+      "product_name": "Sprite",
+      "brand": "Coca-Cola",
+      "unit": "750ml",
+      "price_inr": 43,
+      "in_stock": true
+    },
+    {
+      "id": 133,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Cold Drinks",
+      "product_name": "7Up",
+      "brand": "Pepsi",
+      "unit": "750ml",
+      "price_inr": 42,
+      "in_stock": true
+    },
+    {
+      "id": 134,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Cold Drinks",
+      "product_name": "Thums Up",
+      "brand": "Coca-Cola",
+      "unit": "750ml",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 135,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Juices",
+      "product_name": "Real Fruit Power Mixed Fruit Juice",
+      "brand": "Dabur",
+      "unit": "1L",
+      "price_inr": 125,
+      "in_stock": true
+    },
+    {
+      "id": 136,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Juices",
+      "product_name": "Tropicana Orange 100% Juice",
+      "brand": "Tropicana",
+      "unit": "1L",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 137,
+      "main_category": "Grocery - Beverages",
+      "sub_category": "Juices",
+      "product_name": "B Natural Pomegranate Juice",
+      "brand": "ITC",
+      "unit": "1L",
+      "price_inr": 130,
+      "in_stock": true
+    },
+    {
+      "id": 138,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Cereals",
+      "product_name": "Kellogg's Corn Flakes Original",
+      "brand": "Kellogg's",
+      "unit": "475g",
+      "price_inr": 215,
+      "in_stock": true
+    },
+    {
+      "id": 139,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Cereals",
+      "product_name": "Kellogg's Chocos",
+      "brand": "Kellogg's",
+      "unit": "375g",
+      "price_inr": 210,
+      "in_stock": true
+    },
+    {
+      "id": 140,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Cereals",
+      "product_name": "Quaker Oats",
+      "brand": "Quaker",
+      "unit": "500g",
+      "price_inr": 130,
+      "in_stock": true
+    },
+    {
+      "id": 141,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Cereals",
+      "product_name": "Saffola Oats",
+      "brand": "Saffola",
+      "unit": "500g",
+      "price_inr": 125,
+      "in_stock": true
+    },
+    {
+      "id": 142,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Cereals",
+      "product_name": "Muesli Fruit & Nut",
+      "brand": "Bagrry's",
+      "unit": "500g",
+      "price_inr": 245,
+      "in_stock": true
+    },
+    {
+      "id": 143,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Bread & Bakery",
+      "product_name": "Britannia 100% Whole Wheat Bread",
+      "brand": "Britannia",
+      "unit": "400g",
+      "price_inr": 50,
+      "in_stock": true
+    },
+    {
+      "id": 144,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Bread & Bakery",
+      "product_name": "Modern White Sandwich Bread",
+      "brand": "Modern",
+      "unit": "400g",
+      "price_inr": 45,
+      "in_stock": true
+    },
+    {
+      "id": 145,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Bread & Bakery",
+      "product_name": "Harvest Gold Multigrain Bread",
+      "brand": "Harvest Gold",
+      "unit": "400g",
+      "price_inr": 52,
+      "in_stock": true
+    },
+    {
+      "id": 146,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Bread & Bakery",
+      "product_name": "Britannia Fruit Cake",
+      "brand": "Britannia",
+      "unit": "250g",
+      "price_inr": 90,
+      "in_stock": true
+    },
+    {
+      "id": 147,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Jam & Spreads",
+      "product_name": "Kissan Mixed Fruit Jam",
+      "brand": "Kissan",
+      "unit": "500g",
+      "price_inr": 125,
+      "in_stock": true
+    },
+    {
+      "id": 148,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Jam & Spreads",
+      "product_name": "Sundrop Peanut Butter Crunchy",
+      "brand": "Sundrop",
+      "unit": "462g",
+      "price_inr": 265,
+      "in_stock": true
+    },
+    {
+      "id": 149,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Jam & Spreads",
+      "product_name": "Nutella Hazelnut Spread",
+      "brand": "Nutella",
+      "unit": "200g",
+      "price_inr": 265,
+      "in_stock": true
+    },
+    {
+      "id": 150,
+      "main_category": "Grocery - Breakfast",
+      "sub_category": "Jam & Spreads",
+      "product_name": "Dr. Oetker Fun Foods Mayonnaise",
+      "brand": "Dr. Oetker",
+      "unit": "875g",
+      "price_inr": 210,
+      "in_stock": true
+    },
+    {
+      "id": 151,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Sauces & Condiments",
+      "product_name": "Maggi Hot & Sweet Tomato Chilli Sauce",
+      "brand": "Nestle",
+      "unit": "500g",
+      "price_inr": 95,
+      "in_stock": true
+    },
+    {
+      "id": 152,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Sauces & Condiments",
+      "product_name": "Heinz Tomato Ketchup",
+      "brand": "Heinz",
+      "unit": "450g",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 153,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Sauces & Condiments",
+      "product_name": "Kissan Tomato Ketchup",
+      "brand": "Kissan",
+      "unit": "500g",
+      "price_inr": 100,
+      "in_stock": true
+    },
+    {
+      "id": 154,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Sauces & Condiments",
+      "product_name": "Dr. Oetker Pasta Sauce Arrabiata",
+      "brand": "Dr. Oetker",
+      "unit": "300g",
+      "price_inr": 135,
+      "in_stock": true
+    },
+    {
+      "id": 155,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Canned & Packaged",
+      "product_name": "Haldiram's Dal Makhani Ready to Eat",
+      "brand": "Haldiram's",
+      "unit": "300g",
+      "price_inr": 115,
+      "in_stock": true
+    },
+    {
+      "id": 156,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Canned & Packaged",
+      "product_name": "MTR Dal Tadka Ready to Eat",
+      "brand": "MTR",
+      "unit": "300g",
+      "price_inr": 110,
+      "in_stock": true
+    },
+    {
+      "id": 157,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Canned & Packaged",
+      "product_name": "Kitchens of India Dal Bukhara",
+      "brand": "Kitchens of India",
+      "unit": "285g",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 158,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Canned & Packaged",
+      "product_name": "Godrej Yummiez Chicken Nuggets",
+      "brand": "Godrej",
+      "unit": "250g",
+      "price_inr": 215,
+      "in_stock": true
+    },
+    {
+      "id": 159,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Frozen Food",
+      "product_name": "McCain Smiles Potato Snacks",
+      "brand": "McCain",
+      "unit": "415g",
+      "price_inr": 195,
+      "in_stock": true
+    },
+    {
+      "id": 160,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Frozen Food",
+      "product_name": "McCain Aloo Tikki",
+      "brand": "McCain",
+      "unit": "450g",
+      "price_inr": 185,
+      "in_stock": true
+    },
+    {
+      "id": 161,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Frozen Food",
+      "product_name": "Amul Pizza",
+      "brand": "Amul",
+      "unit": "200g",
+      "price_inr": 145,
+      "in_stock": true
+    },
+    {
+      "id": 162,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Frozen Food",
+      "product_name": "Godrej Real Good Chicken Keema",
+      "brand": "Godrej",
+      "unit": "500g",
+      "price_inr": 250,
+      "in_stock": true
+    },
+    {
+      "id": 163,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Honey & Sweeteners",
+      "product_name": "Dabur Honey",
+      "brand": "Dabur",
+      "unit": "500g",
+      "price_inr": 225,
+      "in_stock": true
+    },
+    {
+      "id": 164,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Honey & Sweeteners",
+      "product_name": "Patanjali Pure Honey",
+      "brand": "Patanjali",
+      "unit": "500g",
+      "price_inr": 210,
+      "in_stock": true
+    },
+    {
+      "id": 165,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Honey & Sweeteners",
+      "product_name": "Zandu Pure Honey",
+      "brand": "Zandu",
+      "unit": "500g",
+      "price_inr": 230,
+      "in_stock": true
+    },
+    {
+      "id": 166,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Chocolates",
+      "product_name": "Dairy Milk Silk",
+      "brand": "Cadbury",
+      "unit": "60g",
+      "price_inr": 85,
+      "in_stock": true
+    },
+    {
+      "id": 167,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Chocolates",
+      "product_name": "KitKat Wafer Bar",
+      "brand": "Nestle",
+      "unit": "37g",
+      "price_inr": 40,
+      "in_stock": true
+    },
+    {
+      "id": 168,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Chocolates",
+      "product_name": "5 Star Chocolate",
+      "brand": "Cadbury",
+      "unit": "50g",
+      "price_inr": 35,
+      "in_stock": true
+    },
+    {
+      "id": 169,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Chocolates",
+      "product_name": "Milkybar",
+      "brand": "Nestle",
+      "unit": "30g",
+      "price_inr": 30,
+      "in_stock": true
+    },
+    {
+      "id": 170,
+      "main_category": "Grocery - Packaged Food",
+      "sub_category": "Chocolates",
+      "product_name": "Ferrero Rocher",
+      "brand": "Ferrero",
+      "unit": "3pcs",
+      "price_inr": 130,
+      "in_stock": true
+    }
+  ]
+}
